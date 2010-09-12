@@ -1,5 +1,5 @@
-The documentation can be found at
+This is an extension of ilbot, whose homepage is
 http://moritz.faui2k3.org/en/ilbot
 
-However it is very incomplete, in case you really want to use it, ask moritz_
-on #perl6
+This extension adds the following new features:
+ * Support for logging multiple servers from a single instance.

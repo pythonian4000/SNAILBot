@@ -24,6 +24,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `irclog` (
   `id` int(11) NOT NULL auto_increment,
+  `server` varchar(30),
   `channel` varchar(30) default NULL,
   `day` char(10) default NULL,
   `nick` varchar(40) default NULL,

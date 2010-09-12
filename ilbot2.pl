@@ -2,7 +2,7 @@
 use warnings;
 use strict;
 use lib 'lib';
-use Config::File;
+use Config::Scoped;
 use Bot::BasicBot 0.81;
 use Carp qw(confess);
 
@@ -18,15 +18,15 @@ use Data::Dumper;
 
     sub prepare {
         my $dbh = shift;
-        return $dbh->prepare("INSERT INTO irclog (channel, day, nick, timestamp, line) VALUES(?, ?, ?, ?, ?)");
+        return $dbh->prepare("INSERT INTO irclog (server, channel, day, nick, timestamp, line) VALUES(?, ?, ?, ?, ?, ?)");
     }
     my $q = prepare($dbh);
     sub dbwrite {
-        my ($channel, $who, $line) = @_;
+        my ($server, $channel, $who, $line) = @_;
         # mncharity aka putter has an IRC client that prepends some lines with
         # a BOM. Remove that:
         $line =~ s/\A\x{ffef}//;
-        my @sql_args = ($channel, gmt_today(), $who, time, $line);
+        my @sql_args = ($server, $channel, gmt_today(), $who, time, $line);
         if ($dbh->ping){
             $q->execute(@sql_args);
         } else {
@@ -41,14 +41,14 @@ use Data::Dumper;
     sub said {
         my $self = shift;
         my $e = shift;
-        dbwrite($e->{channel}, $e->{who}, $e->{body});
+        dbwrite($self->{server}, $e->{channel}, $e->{who}, $e->{body});
         return undef;
     }
 
     sub emoted {
         my $self = shift;
         my $e = shift;
-        dbwrite($e->{channel}, '* ' . $e->{who}, $e->{body});
+        dbwrite($self->{server}, $e->{channel}, '* ' . $e->{who}, $e->{body});
         return undef;
 
     }
@@ -56,21 +56,21 @@ use Data::Dumper;
     sub chanjoin {
         my $self = shift;
         my $e = shift;
-        dbwrite($e->{channel}, '',  $e->{who} . ' joined ' . $e->{channel});
+        dbwrite($self->{server}, $e->{channel}, '',  $e->{who} . ' joined ' . $e->{channel});
         return undef;
     }
 
     sub chanquit {
         my $self = shift;
         my $e = shift;
-        dbwrite($e->{channel}, '', $e->{who} . ' left ' . $e->{channel});
+        dbwrite($self->{server}, $e->{channel}, '', $e->{who} . ' left ' . $e->{channel});
         return undef;
     }
 
     sub chanpart {
         my $self = shift;
         my $e = shift;
-        dbwrite($e->{channel}, '',  $e->{who} . ' left ' . $e->{channel});
+        dbwrite($self->{server}, $e->{channel}, '',  $e->{who} . ' left ' . $e->{channel});
         return undef;
     }
 
@@ -94,7 +94,7 @@ use Data::Dumper;
     sub topic {
         my $self = shift;
         my $e = shift;
-        dbwrite($e->{channel}, "", 'Topic for ' . $e->{channel} . ' is now ' . $e->{topic});
+        dbwrite($self->{server}, $e->{channel}, "", 'Topic for ' . $e->{channel} . ' is now ' . $e->{topic});
         return undef;
     }
 
@@ -103,7 +103,7 @@ use Data::Dumper;
         my($old, $new) = @_;
 
         foreach my $channel ($self->_channels_for_nick($new)) {
-            dbwrite($channel, "", $old . ' is now known as ' . $new);
+            dbwrite($self->{server}, $channel, "", $old . ' is now known as ' . $new);
         }
         
         return undef;
@@ -112,7 +112,7 @@ use Data::Dumper;
     sub kicked {
         my $self = shift;
         my $e = shift;
-        dbwrite($e->{channel}, "", $e->{kicked} . ' was kicked by ' . $e->{who} . ': ' . $e->{reason});
+        dbwrite($self->{server}, $e->{channel}, "", $e->{kicked} . ' was kicked by ' . $e->{who} . ': ' . $e->{reason});
         return undef;
     }
 
@@ -124,14 +124,18 @@ use Data::Dumper;
 
 
 package main;
-my $conf = Config::File::read_config_file(shift @ARGV || "bot.conf");
-my $nick = shift @ARGV || $conf->{NICK} || "ilbot6";
-my $server = $conf->{SERVER} || "irc.freenode.net";
-my $port = $conf->{PORT} || 6667;
-my $channels = [ split m/\s+/, $conf->{CHANNEL}];
+my $conf = Config::Scoped->new( file => shift @ARGV || "bot.conf")->parse;
+die "Could not read config!\n" unless ref $conf;
+my $servers = $conf->{'servers'};
+foreach my $server (keys %$servers)
+{
+    my $nick = $servers->{$server}->{'NICK'} || "ilbot6";
+    my $address = $servers->{$server}->{'SERVER'} || "irc.freenode.net";
+    my $port = $servers->{$server}->{'PORT'} || 6667;
+    my $channels = [ split m/\s+/, $servers->{$server}->{'CHANNEL'}];
 
-my $bot = IrcLogBot->new(
-        server    => $server,
+    my $bot = IrcLogBot->new(
+        server    => $address,
         port      => $port,
         channels  => $channels,
         nick      => $nick,
@@ -139,7 +143,11 @@ my $bot = IrcLogBot->new(
         username  => "bot",
         name      => "irc log bot, http://moritz.faui2k3.org/en/ilbot",
         charset   => "utf-8", 
+        no_run    => 1,
         );
-$bot->run();
+    $bot->run();
+}
+use POE;
+$poe_kernel->run();
 
 # vim: ts=4 sw=4 expandtab
