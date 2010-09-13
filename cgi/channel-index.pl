@@ -15,6 +15,7 @@ go();
 
 sub go {
     my $q = new CGI;
+    my $server = $q->url_param('server');
     my $channel = $q->url_param('channel');
     print "Content-Type: text/html; charset=utf-8\n\n";
 
@@ -23,7 +24,7 @@ sub go {
     my $data       = $cache->get($cache_name);
 
     if (! defined $data) {
-        $data = get_channel_index($channel);
+        $data = get_channel_index($server, $channel);
         $cache->set($data, '2 hours');
     }
 
@@ -31,16 +32,17 @@ sub go {
 }
 
 sub test_calendar {
+    my $server   = 'irc.freenode.net';
     my $channel  = '#parrotsketch';
-    my $base_url = '/irclog/';
+    my $base_url = '/';
     my $dates    = [qw( 2009-09-28 2009-09-30
                         2009-10-01 2009-10-02 2009-10-05 2009-10-12 )];
 
-    print calendar_for_channel($channel, $dates, $base_url);
+    print calendar_for_channel($server, $channel, $dates, $base_url);
 }
 
 sub get_channel_index {
-    my $channel  = shift;
+    my ($server, $channel) = @_;
     my $conf     = Config::File::read_config_file('cgi.conf');
     my $base_url = $conf->{BASE_URL} || q{/};
 
@@ -52,23 +54,24 @@ sub get_channel_index {
     # we are evil and create a calendar entry for month between the first
     # and last date
     my $dbh       = get_dbh();
-    my $get_dates = 'SELECT DISTINCT day FROM irclog WHERE channel = ? ORDER BY day';
-    my $dates     = $dbh->selectcol_arrayref($get_dates, undef, '#' . $channel);
+    my $get_dates = 'SELECT DISTINCT day FROM irclog WHERE server = ? AND channel = ? ORDER BY day';
+    my $dates     = $dbh->selectcol_arrayref($get_dates, undef, ($server, '#' . $channel));
 
+    $t->param(SERVER   => $server);
     $t->param(CHANNEL  => $channel);
     $t->param(BASE_URL => $base_url);
-    $t->param(CALENDAR => calendar_for_channel($channel, $dates, $base_url));
+    $t->param(CALENDAR => calendar_for_channel($server, $channel, $dates, $base_url));
     return $t->output;
 }
 
 sub calendar_for_channel {
-    my ($channel, $dates, $base_url)  = @_;
+    my ($server, $channel, $dates, $base_url)  = @_;
     $channel =~ s/\A\#//smx;
 
     my (%months, %link);
     for my $date (@$dates) {
         my ($Y, $M, $D) = split '-', $date;
-        $link{$date}    = "$base_url$channel/$date";
+        $link{$date}    = "$base_url$server/$channel/$date";
         $months{"$Y-$M"}++;
     }
 

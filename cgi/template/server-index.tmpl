@@ -6,17 +6,17 @@
     <meta name="description" content="IRC logs by ilbot" />
     <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Irclog default Stylesheet" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
-    <title>IRC logs - Index</title>
+    <title><TMPL_VAR SERVER> IRC logs - Index</title>
 </head>
 <body>
-    <h1>Index of IRC logs</h1>
+    <h1>IRC logs - Server Index</h1>
 
     <p><a href="<TMPL_VAR BASE_URL>search.pl">Search the logs</a></p>
 
-	<h2>Servers</h2>
+	<h2 id="<TMPL_VAR SERVER>"><TMPL_VAR SERVER></h2>
 
-	<ul><TMPL_LOOP SERVERS>
-		<li><a href="<TMPL_VAR BASE_URL><TMPL_VAR NAME=SERVER ESCAPE=URL>/"><TMPL_VAR SERVER></a></li>
+	<ul><TMPL_LOOP CHANNELS>
+		<li><a href="<TMPL_VAR BASE_URL><TMPL_VAR NAME=SERVER ESCAPE=URL>/<TMPL_VAR NAME=CHANNEL ESCAPE=URL>/">#<TMPL_VAR CHANNEL></a> - <a href="<TMPL_VAR BASE_URL><TMPL_VAR NAME=SERVER ESCAPE=URL>/<TMPL_VAR NAME=CHANNEL ESCAPE=URL>/today">Today</a></li>
     </TMPL_LOOP>
 	</ul>
 
