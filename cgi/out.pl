@@ -10,7 +10,7 @@ use Encode;
 use HTML::Template;
 use Config::File;
 use File::Slurp;
-use lib 'lib';
+use lib '../lib';
 use IrcLog qw(get_dbh gmt_today);
 use IrcLog::WWW qw(http_header message_line my_encode);
 use Cache::SizeAwareFileCache;

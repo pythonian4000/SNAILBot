@@ -19,7 +19,7 @@ our @EXPORT_OK = qw(
 # get a database handle.
 # you will have to modify that routine to fit your needs
 sub get_dbh {
-    my $conf = Config::File::read_config_file("database.conf");
+    my $conf = Config::File::read_config_file("../database.conf");
     my $dbs = $conf->{DSN} || "mysql";
     my $db_name = $conf->{DATABASE} || "irclog";
     my $host = $conf->{HOST} || "localhost";

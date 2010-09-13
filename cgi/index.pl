@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Config::File;
 use HTML::Template;
-use lib 'lib';
+use lib '../lib';
 use IrcLog qw(get_dbh);
 use IrcLog::WWW qw(http_header);
 

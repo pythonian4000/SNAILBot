@@ -10,7 +10,7 @@ use HTML::Entities;
 use HTML::Template;
 use Config::File;
 use List::Util qw(min max);
-use lib 'lib';
+use lib '../lib';
 use IrcLog qw(get_dbh);
 use IrcLog::WWW qw(http_header message_line my_encode my_decode);
 use utf8;

@@ -7,7 +7,7 @@ use CGI;
 use Config::File;
 use HTML::Template;
 use Cache::FileCache;
-use lib 'lib';
+use lib '../lib';
 use IrcLog qw(get_dbh gmt_today);
 
 # test_calendar();
