@@ -33,7 +33,7 @@ sub get_server_index {
 	my $conf = Config::File::read_config_file('cgi.conf');
 	my $base_url = $conf->{BASE_URL} || q{/};
 
-	my $sth = $dbh->prepare("SELECT DISTINCT channel FROM irclog WHERE server = $server");
+	my $sth = $dbh->prepare("SELECT DISTINCT channel FROM irclog WHERE server = '$server'");
 	$sth->execute();
 
 	my @channels;
