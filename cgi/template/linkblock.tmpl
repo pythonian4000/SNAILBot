@@ -1,19 +1,21 @@
     <p><TMPL_IF NAME=PREV_URL><a href="<TMPL_VAR NAME=PREV_URL>">&larr; Previous
     day</a> |</TMPL_IF> 
     <a href="<TMPL_VAR NAME=BASE_URL>">Index</a> |
-	<a href="<TMPL_VAR NAME=BASE_URL><TMPL_VAR NAME=CHANNEL>">Channel
+    <a href="<TMPL_VAR NAME=BASE_URL><TMPL_VAR NAME=SERVER>">Server Index</a> |
+	<a href="<TMPL_VAR NAME=BASE_URL><TMPL_VAR NAME=SERVER>/<TMPL_VAR NAME=CHANNEL>">Channel
 	Index</a> |
-	<a href="<TMPL_VAR NAME=BASE_URL><TMPL_VAR NAME=CHANNEL>/today">Today</a> |
+	<a href="<TMPL_VAR NAME=BASE_URL><TMPL_VAR NAME=SERVER>/<TMPL_VAR
+    NAME=CHANNEL>/today">Today</a> |
     <TMPL_IF NAME=NEXT_URL>
 		<a href="<TMPL_VAR NAME=NEXT_URL>">Next day &rarr;</a> |
 	</TMPL_IF>
-    <a href="<TMPL_VAR BASE_URL>search.pl?channel=<TMPL_VAR CHANNEL>">Search</a> |
+    <a href="<TMPL_VAR BASE_URL>search.pl?server=<TMPL_VAR SERVER>;channel=<TMPL_VAR CHANNEL>">Search</a> |
     <a href="http://www.google.com/search?q=site%3Airclog.perlgeek.de+inurl%3A<TMPL_VAR NAME=CHANNEL ESCAPE=URL>">Google Search</a>
 	<TMPL_IF NAME=DATE>| <a href="<TMPL_VAR
-	NAME=BASE_URL>text.pl?channel=<TMPL_VAR NAME=CHANNEL>;date=<TMPL_VAR
-	NAME=DATE>">Plain-Text</a>
+	NAME=BASE_URL>text.pl?server=<TMPL_VAR NAME=SERVER>;channel=<TMPL_VAR
+    NAME=CHANNEL>;date=<TMPL_VAR NAME=DATE>">Plain-Text</a>
     | <a href="<TMPL_VAR
-	NAME=BASE_URL>text.pl?channel=<TMPL_VAR NAME=CHANNEL>;date=<TMPL_VAR
-	NAME=DATE>;reverse=1">plain, newest first</a></TMPL_IF>
+	NAME=BASE_URL>text.pl?server=<TMPL_VAR NAME=SERVER>;channel=<TMPL_VAR
+    NAME=CHANNEL>;date=<TMPL_VAR NAME=DATE>;reverse=1">plain, newest first</a></TMPL_IF>
 
 	</p>

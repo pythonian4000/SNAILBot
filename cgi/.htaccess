@@ -8,23 +8,26 @@ RewriteRule ^[.] - [F]
 RewriteRule \.conf - [F]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/$ /channel-index.pl?channel=$1 [L]
+RewriteRule ^([^/]+)/$ /server-index.pl?server=$1 [L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([\w_-]+)/?$ /channel-index.pl?channel=$1 [L]
+RewriteRule ^([^/]+)/([^/]+)/$ /channel-index.pl?server=$1;channel=$2 [L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/today$ out.pl?channel=$1
+RewriteRule ^([^/]+)/([\w_-]+)/?$ /channel-index.pl?server=$1;channel=$2 [L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/yesterday$ out.pl?channel=$1;date=yesterday
+RewriteRule ^([^/]+)/([^/]+)/today$ out.pl?server=$1;channel=$2
 
-RewriteCond %{QUERY_STRING} ^channel=([^;]+);date=(\d\d\d\d-\d\d-\d\d)
+RewriteCond %{HTTP_REQUEST} !^search
+RewriteRule ^([^/]+)/([^/]+)/yesterday$ out.pl?server=$1;channel=$2;date=yesterday
+
+RewriteCond %{QUERY_STRING} ^server=([^;]+);channel=([^;]+);date=(\d\d\d\d-\d\d-\d\d)
 RewriteCond %{HTTP_REQUEST} ^out\.pl
-RewriteRule ^out.pl /%1/%2? [R=301,L]
+RewriteRule ^out.pl /%1/%2/%3? [R=301,L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/(\d\d\d\d-\d\d-\d\d)  out.pl?channel=$1;date=$2 [L]
+RewriteRule ^([^/]+)/([^/]+)/(\d\d\d\d-\d\d-\d\d)  out.pl?server=$1;channel=$2;date=$3 [L]
 
 RewriteRule ^search/?$ /search.pl
 RewriteRule ^search/(\d+)/(.*)$	/search.pl?offset=$1;q=$2

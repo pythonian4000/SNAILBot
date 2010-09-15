@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <meta name="description" content="IRC LOG for channel <TMPL_VAR CHANNEL>" />
+    <meta name="description" content="IRC LOG for channel <TMPL_VAR CHANNEL> on <TMPL_VAR SERVER>" />
     <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Purple Haze Stylesheet" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
     <title>IRC logs - Search</title>
@@ -15,6 +15,15 @@
 
     <form action="<TMPL_VAR BASE_URL>search.pl" method="get"
     accept-charset="utf-8">
+        <label for="server">Server</label>
+        <select id="server" name="server" size="<TMPL_VAR SVR_COUNT>">
+                <TMPL_LOOP SERVERS>
+                <option <TMPL_IF SELECTED>selected="selected"</TMPL_IF>><TMPL_VAR
+                SERVER></option>
+                </TMPL_LOOP>
+        </select>
+        <br />
+
         <label for="channel">Channel</label>
         <select id="channel" name="channel" size="<TMPL_VAR CH_COUNT>">
                 <TMPL_LOOP CHANNELS>
@@ -47,7 +56,8 @@
 	Result pages:
 	<TMPL_LOOP RESULT_PAGES>
 		<a href="<TMPL_VAR BASE_URL>search.pl?nick=<TMPL_VAR
-		NICK ESCAPE=URL>;channel=<TMPL_VAR CURRENT_CHANNEL
+		NICK ESCAPE=URL>;server=<TMPL_VAR CURRENT_SERVER
+        ESCAPE=URL>;channel=<TMPL_VAR CURRENT_CHANNEL
 		ESCAPE=URL>;q=<TMPL_VAR Q>;offset=<TMPL_VAR OFFSET>"><TMPL_VAR
 		PAGE></a>
 	</TMPL_LOOP>
@@ -67,7 +77,8 @@
 	Result pages:
 	<TMPL_LOOP RESULT_PAGES>
 		<a href="<TMPL_VAR BASE_URL>search.pl?nick=<TMPL_VAR
-		NAME=NICK ESCAPE=URL>;channel=<TMPL_VAR NAME=CURRENT_CHANNEL
+		NAME=NICK ESCAPE=URL>;server=<TMPL_VAR NAME=CURRENT_SERVER
+        ESCAPE=URL>;channel=<TMPL_VAR NAME=CURRENT_CHANNEL
 		ESCAPE=URL>;q=<TMPL_VAR Q>;offset=<TMPL_VAR OFFSET>"><TMPL_VAR PAGE></a>
 	</TMPL_LOOP>
 	</p>

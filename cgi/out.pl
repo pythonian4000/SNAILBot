@@ -50,12 +50,14 @@ my @colors = (
 my @nick_classes = map { "nick$_" } (1 .. 9);
 
 # Default channel: this channel will be shown if no channel=... arg is given
+my $default_server = 'irc.freenode.net';
 my $default_channel = 'perl6';
 
 # End of config
 
 my $q = new CGI;
 my $dbh = get_dbh();
+my $server = $q->param('server') || $default_server;
 my $channel = $q->param('channel') || $default_channel;
 my $date = $q->param('date') || gmt_today();
 if ($date eq 'today') {
@@ -87,7 +89,7 @@ my $count;
 
 
 {
-    my $cache_key = $channel . '|' . $date . '|' . $count;
+    my $cache_key = $server . '|' . $channel . '|' . $date . '|' . $count;
     # the average #perl6 day produces 100k to 400k of HTML, so with
     # 50MB we have about 150 pages in the cache. Since most hits are
     # the "today" page and those of the last 7 days, we still get a very
@@ -101,14 +103,14 @@ my $count;
     if (defined $data){
         print $data;
     } else {
-        $data = irclog_output($date, $channel);
+        $data = irclog_output($date, $server, $channel);
         $cache->set($cache_key, $data);
         print $data;
     }
 }
 
 sub irclog_output {
-    my ($date, $channel) = @_;
+    my ($date, $server, $channel) = @_;
 
     my $full_channel = q{#} . $channel;
     my $t = HTML::Template->new(
@@ -121,25 +123,26 @@ sub irclog_output {
     $t->param(ADMIN => 1) if ($q->param('admin'));
 
     {
-        my $clf = "channels/$channel.tmpl";
+        my $clf = "channels/$server/$channel.tmpl";
         if (-e $clf) {
             $t->param(CHANNEL_LINKS => q{} . read_file($clf));
         }
     }
     $t->param(BASE_URL  => $base_url);
-    my $self_url = $base_url . "/$channel/$date";
+    my $self_url = $base_url . "/$server/$channel/$date";
     my $db = $dbh->prepare('SELECT id, nick, timestamp, line FROM irclog '
-            . 'WHERE day = ? AND channel = ? AND NOT spam ORDER BY id');
-    $db->execute($date, $full_channel);
+            . 'WHERE day = ? AND channel = ? AND server = ? AND NOT spam '
+            . 'ORDER BY id');
+    $db->execute($date, $full_channel, $server);
 
 
 # determine which colors to use for which nick:
     {
         my $count = scalar @nick_classes + scalar @colors + 1;
         my $q1 = $dbh->prepare('SELECT nick, COUNT(nick) AS c FROM irclog'
-                . ' WHERE day = ? AND channel = ? AND not spam'
+                . ' WHERE day = ? AND channel = ? AND server = ? AND not spam'
                 . " GROUP BY nick ORDER BY c DESC LIMIT $count");
-        $q1->execute($date, $full_channel);
+        $q1->execute($date, $full_channel, $server);
         while (my @row = $q1->fetchrow_array and @nick_classes){
             next unless length $row[0];
             my $n = quotemeta $row[0];
@@ -175,6 +178,7 @@ sub irclog_output {
                 colors      => \@colors,
                 self_url    => $self_url,
                 channel     => $channel,
+                server      => $server,
                 },
                 \$c,
                 );
@@ -182,6 +186,7 @@ sub irclog_output {
     }
 
     $t->param(
+            SERVER      => $server,
             CHANNEL     => $channel,
             MESSAGES    => \@msg,
             DATE        => $date,
@@ -190,23 +195,23 @@ sub irclog_output {
 # check if previous/next date exists in database
     {
         my $q1 = $dbh->prepare('SELECT COUNT(*) FROM irclog '
-                . 'WHERE channel = ? AND day = ? AND NOT spam');
+                . 'WHERE server = ? AND channel = ? AND day = ? AND NOT spam');
         # Date::Simple magic ;)
         my $tomorrow = date($date) + 1;
-        $q1->execute($full_channel, $tomorrow);
+        $q1->execute($server, $full_channel, $tomorrow);
         my ($res) = $q1->fetchrow_array();
         if ($res){
-            my $next_url = $base_url . "$channel/$tomorrow";
+            my $next_url = $base_url . "$server/$channel/$tomorrow";
             # where the hell does the leading double slash come from?
             $next_url =~ s{^//+}{/};
             $t->param(NEXT_URL => $next_url);
         }
 
         my $yesterday = date($date) - 1;
-        $q1->execute($full_channel, $yesterday);
+        $q1->execute($server, $full_channel, $yesterday);
         ($res) = $q1->fetchrow_array();
         if ($res){
-            my $prev_url = $base_url . "$channel/$yesterday";
+            my $prev_url = $base_url . "$server/$channel/$yesterday";
             $prev_url =~ s{^//+}{/};
             $t->param(PREV_URL => $prev_url);
         }

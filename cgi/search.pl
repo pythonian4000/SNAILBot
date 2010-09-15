@@ -17,6 +17,9 @@ use utf8;
 #use Data::Dumper;
 #$DATA::Dumper::indent = 0;
 
+my $default_server = 'irc.freenode.net';
+my $default_channel = 'openhatch';
+
 my $conf = Config::File::read_config_file("cgi.conf");
 my $base_url = $conf->{BASE_URL} || "/";
 my $days_per_page = 10;
@@ -40,29 +43,55 @@ die unless $offset =~ m/^\d+$/;
 
 my $dbh = get_dbh();
 {
-    # populate the select box with possible channel names to search in
-    my @channels; 
-    my $q1 = $dbh->prepare("SELECT DISTINCT channel FROM irclog ORDER BY channel");
+    # populate the select box with possible servers to search in
+    my @servers;
+    my $q1 = $dbh->prepare("SELECT DISTINCT server FROM irclog ORDER BY server");
     $q1->execute();
-    my $ch = $q->param('channel') || 'perl6';
+    my $svr = $q->param('server') || $default_server;
+    $t->param(CURRENT_SERVER => $svr, SERVER => $svr);
+    while (my @row = $q1->fetchrow_array){
+        if ($svr eq $row[0]){
+            push @servers, {SERVER => $row[0], SELECTED => 1};
+        } else {
+            push @servers, {SERVER => $row[0]};
+        }
+    }
+    # populate the select box with possible channel names to search in
+    my %all_channels;
+    my $ch = $q->param('channel') || $default_channel;
 	$ch =~ s/^\#//;
     $t->param(CURRENT_CHANNEL => $ch, CHANNEL => $ch);
-    while (my @row = $q1->fetchrow_array){
-		$row[0] =~ s/^\#//;
-        if ($ch eq $row[0]){
-            push @channels, {CHANNEL => $row[0], SELECTED => 1};
-        } else {
-            push @channels, {CHANNEL => $row[0]};
+    for my $server (@servers) {
+        my @channels; 
+        my $q2 = $dbh->prepare("SELECT DISTINCT channel FROM irclog WHERE server = '$server' ORDER BY channel");
+        $q2->execute();
+        while (my @row = $q2->fetchrow_array){
+		    $row[0] =~ s/^\#//;
+            if ($ch eq $row[0]){
+                push @channels, {CHANNEL => $row[0], SELECTED => 1};
+            } else {
+                push @channels, {CHANNEL => $row[0]};
+            }
+        $all_channels{$server} = [ @channels ];
         }
     }
 
+    # populate the size of the select box with server names
+    $t->param(SERVERS => \@servers);
+    if (@servers >= 5 ){
+        $t->param(SVR_COUNT => 5);
+    } else {
+        $t->param(SVR_COUNT => scalar @servers);
+    }
     # populate the size of the select box with channel names
-    $t->param(CHANNELS => \@channels);
-    if (@channels >= 5 ){
+    $t->param(CHANNELS => [ $all_channels{$svr} ]);
+    my @arr = $all_channels{$svr};
+    if (@arr >= 5 ){
         $t->param(CH_COUNT => 5);
     } else {
-        $t->param(CH_COUNT => scalar @channels);
+        $t->param(CH_COUNT => scalar @arr);
     }
+    $t->param(ALL_CHANNELS => \%all_channels);
 }
 
 my $nick = decode('utf8', $q->param('nick') || '');
@@ -73,9 +102,10 @@ $qs = my_decode($qs);
 
 $t->param(NICK => encode('utf8', $nick));
 $t->param(Q => $qs);
-my $short_channel = decode('utf8', $q->param('channel') || 'perl6');
+my $server = $q->param('server') || $default_server;
+my $short_channel = decode('utf8', $q->param('channel') || $default_channel);
 # guard against old URLs:
-$short_channel =~ s/^#//;
+#$short_channel =~ s/^#//;
 my $channel = '#' .$short_channel;
 
 
@@ -83,8 +113,8 @@ if (length($nick) or length($qs)){
 
 
 
-	my @sql_conds = ('channel = ? AND NOT spam');
-	my @args = ($channel);
+	my @sql_conds = ('server = ? AND channel = ? AND NOT spam');
+	my @args = ($server, $channel);
 	if (length $nick){
 		push @sql_conds, '(nick = ? OR nick = ?)';
 		push @args, $nick, "* $nick";
@@ -151,8 +181,9 @@ if (length($nick) or length($qs)){
 							line_number => $line_number++, 
 							prev_nick	=> $prev_nick, 
 							colors		=> [], 
-							link_url	=> $base_url . "out.pl?channel=$short_channel;date=$row[0]",
+							link_url	=> $base_url . "out.pl?server=$server;channel=$short_channel;date=$row[0]",
 							channel		=> $channel,
+							server      => $server,
 							date		=> $found_day,
 						);
 				$args{search_found} = 'search_found' if $r2[0] == $found_id;
@@ -164,7 +195,7 @@ if (length($nick) or length($qs)){
 			}
         }
         push @days, { 
-            URL     => $base_url . "out.pl?channel=$short_channel;date=$row[0]",
+            URL     => $base_url . "out.pl?server=$server;channel=$short_channel;date=$row[0]",
             DAY     => $row[0],
             LINES   => \@lines,
         };
@@ -190,8 +221,5 @@ sub search_with_context {
     my @ids;
     my $day;
     ($ids[0], $day) = $q2->fetchrow_array();
-
-
-
 }
 
