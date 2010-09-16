@@ -4,6 +4,7 @@ use CGI;
 use strict;
 use warnings;
 use Config::File;
+use File::Slurp;
 use HTML::Template;
 use lib '../lib';
 use IrcLog qw(get_dbh);

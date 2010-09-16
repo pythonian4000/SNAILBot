@@ -5,6 +5,7 @@ use Calendar::Simple;
 use CGI::Carp qw(fatalsToBrowser);
 use CGI;
 use Config::File;
+use File::Slurp;
 use HTML::Template;
 use Cache::FileCache;
 use lib '../lib';
