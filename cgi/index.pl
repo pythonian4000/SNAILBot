@@ -48,6 +48,17 @@ sub get_index {
     );
 	$template->param(BASE_URL => $base_url);
 	$template->param( servers => \@servers );
+    {
+        # Find and insert extras
+        my $analytics_header = "extras/analytics-header.tmpl";
+        if (-e $analytics_header) {
+            $template->param(ANALYTICS_HEADER => q{} . read_file($analytics_header));
+        }
+        my $analytics_footer = "extras/analytics-footer.tmpl";
+        if (-e $analytics_footer) {
+            $template->param(ANALYTICS_FOOTER => q{} . read_file($analytics_footer));
+        }
+    }
 
 
 	return $template->output;

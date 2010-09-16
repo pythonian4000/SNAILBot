@@ -123,9 +123,28 @@ sub irclog_output {
     $t->param(ADMIN => 1) if ($q->param('admin'));
 
     {
+        # Insert channel logo if present
+        my $clf = "logos/$server/$channel.tmpl";
+        if (-e $clf) {
+            $t->param(CHANNEL_LOGO => q{} . read_file($clf));
+        }
+    }
+    {
+        # Insert channel-specific links if present
         my $clf = "channels/$server/$channel.tmpl";
         if (-e $clf) {
             $t->param(CHANNEL_LINKS => q{} . read_file($clf));
+        }
+    }
+    {
+        # Find and insert extras
+        my $analytics_header = "extras/analytics-header.tmpl";
+        if (-e $analytics_header) {
+            $t->param(ANALYTICS_HEADER => q{} . read_file($analytics_header));
+        }
+        my $analytics_footer = "extras/analytics-footer.tmpl";
+        if (-e $analytics_footer) {
+            $t->param(ANALYTICS_FOOTER => q{} . read_file($analytics_footer));
         }
     }
     $t->param(BASE_URL  => $base_url);

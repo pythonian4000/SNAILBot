@@ -1,0 +1,14 @@
+There are several optional features that you can add to your site, such as
+analytics or site traffic monitoring. If you want to add any of them to your
+log server, just create the corresponding file and paste into it whatever
+code you need to.
+
+For example, to enable Google Analytics on your log server, create the file
+'analytics-head.tmpl' and paste into it the code that Google gives you when
+you configure your log server in Google Analytics.
+
+Analytics (included just before </head> tag):
+    analytics-header.tmpl
+
+Analytics (included in bottom of footer):
+    analytics-footer.tmpl

@@ -61,6 +61,17 @@ sub get_channel_index {
     $t->param(CHANNEL  => $channel);
     $t->param(BASE_URL => $base_url);
     $t->param(CALENDAR => calendar_for_channel($server, $channel, $dates, $base_url));
+    {
+        # Find and insert extras
+        my $analytics_header = "extras/analytics-header.tmpl";
+        if (-e $analytics_header) {
+            $t->param(ANALYTICS_HEADER => q{} . read_file($analytics_header));
+        }
+        my $analytics_footer = "extras/analytics-footer.tmpl";
+        if (-e $analytics_footer) {
+            $t->param(ANALYTICS_FOOTER => q{} . read_file($analytics_footer));
+        }
+    }
     return $t->output;
 }
 
