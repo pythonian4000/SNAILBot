@@ -13,12 +13,14 @@ use IrcLog qw(get_dbh gmt_today);
 use IrcLog::WWW qw(my_encode my_decode);
 use Text::Table;
 
+my $default_server = 'irc.freenode.net';
 my $default_channel = 'perl6';
 
 # End of config
 
 my $q = new CGI;
 my $dbh = get_dbh();
+my $server = $q->param('server') || $default_server;
 my $channel = $q->param('channel') || $default_channel;
 
 my $reverse = $q->param('reverse') || 0;
@@ -32,12 +34,12 @@ if ($channel !~ m/^\w+(?:-\w+)*\z/sx){
 
 #Check for reverse
 my $statement = 'SELECT nick, timestamp, line FROM irclog '
-        . 'WHERE day = ? AND channel = ? AND NOT spam ORDER BY id';
+        . 'WHERE day = ? AND channel = ? AND server = ? AND NOT spam ORDER BY id';
 
 $statement .= ' DESC' if $reverse;
 
 my $db = $dbh->prepare($statement);
-$db->execute($date, '#' . $channel);
+$db->execute($date, '#' . $channel, $server);
 
 
 print "Content-Type: text/html;charset=utf-8\n\n";
