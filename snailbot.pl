@@ -1,4 +1,23 @@
 #!/usr/bin/perl
+# The actual IRC bot that collects data from channels on servers as defined
+# in bot.conf and logs it to the database specified in database.conf.
+# Copyright (C) 2010 Jack Grigg <me@jackgrigg.com>
+#
+# This file is part of SNAILBot.
+#
+# SNAILBot is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# SNAILBot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with SNAILBot.  If not, see <http://www.gnu.org/licenses/>.
+
 use warnings;
 use strict;
 use lib 'lib';
@@ -6,7 +25,7 @@ use Config::Scoped;
 use Bot::BasicBot 0.81;
 use Carp qw(confess);
 
-# this is a cleaner reimplementation of ilbot, with Bot::BasicBot which 
+# this s based on ilbot. It uses Bot::BasicBot which 
 # in turn is based POE::* stuff
 package IrcLogBot;
 use IrcLog qw(get_dbh gmt_today);
@@ -118,7 +137,7 @@ use Data::Dumper;
 
     sub help {
         my $self = shift;
-        return "This is a passive irc logging bot. Homepage: http://moritz.faui2k3.org/en/ilbot";
+        return "This is a passive irc logging bot. View the logs at http://irclogs.jackgrigg.com/";
     }
 }
 
@@ -129,7 +148,7 @@ die "Could not read config!\n" unless ref $conf;
 my $servers = $conf->{'servers'};
 foreach my $server (keys %$servers)
 {
-    my $nick = $servers->{$server}->{'NICK'} || "ilbot6";
+    my $nick = $servers->{$server}->{'NICK'} || "SNAILBot";
     my $address = $servers->{$server}->{'SERVER'} || "irc.freenode.net";
     my $port = $servers->{$server}->{'PORT'} || 6667;
     my $channels = [ split m/\s+/, $servers->{$server}->{'CHANNEL'}];
@@ -141,7 +160,7 @@ foreach my $server (keys %$servers)
         nick      => $nick,
         alt_nicks => ["irclogbot", "logbot"],
         username  => "bot",
-        name      => "irc log bot, http://moritz.faui2k3.org/en/ilbot",
+        name      => "irc log bot, http://www.jackgrigg.com/projects/snailbot",
         charset   => "utf-8", 
         no_run    => 1,
         );

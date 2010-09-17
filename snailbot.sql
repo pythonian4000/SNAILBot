@@ -1,6 +1,6 @@
 -- MySQL dump 10.11
 --
--- Host: localhost    Database: moritz5
+-- Host: localhost    Database: snailbotdb
 -- ------------------------------------------------------
 -- Server version	5.0.51a-24+lenny3
 

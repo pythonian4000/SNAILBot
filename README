@@ -1,5 +1,13 @@
-This is an extension of ilbot, whose homepage is
+SNAILBot is a passive IRC logging bot written in Perl.
+For more information and usage instructions, see the
+homepage at http://www.jackgrigg.com/projects/snailbot
+
+It is based on ilbot, whose homepage is
 http://moritz.faui2k3.org/en/ilbot
 
-This extension adds the following new features:
- * Support for logging multiple servers from a single instance.
+The following new features have been added:
+ * Multiple servers can be logged from a single instance.
+ * Modular approach to including:
+   * Channel-specific links.
+   * Channel-specific logos.
+   * Analytics code, site counters etc.
