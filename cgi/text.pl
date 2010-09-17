@@ -59,12 +59,14 @@ $statement .= ' DESC' if $reverse;
 my $db = $dbh->prepare($statement);
 $db->execute($date, '#' . $channel, $server);
 
+my $order = "";
+$order .= ', newest first' if $reverse;
 
 print "Content-Type: text/html;charset=utf-8\n\n";
 print <<HTML_HEADER;
 <html>
 <head>
-<title>IRC Logs</title>
+<title>Plaintext IRC log for $server/#$channel, $date$order</title>
 </head>
 <body>
 <pre>
