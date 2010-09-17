@@ -137,7 +137,7 @@ use Data::Dumper;
 
     sub help {
         my $self = shift;
-        return "This is a passive irc logging bot. View the logs at http://irclogs.jackgrigg.com/";
+        return "This is a passive irc logging bot. Lines beginning in [off] are not logged. View the logs at http://irclogs.jackgrigg.com/";
     }
 }
 
