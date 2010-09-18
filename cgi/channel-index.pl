@@ -96,7 +96,9 @@ sub get_channel_index {
 
 sub calendar_for_channel {
     my ($server, $channel, $dates, $base_url)  = @_;
-    $channel =~ s/\A\#//smx;
+    #$channel =~ s/\A\#//smx;
+    # Encode channel in case it starts with #
+    $channel =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
 
     my (%months, %link);
     for my $date (@$dates) {

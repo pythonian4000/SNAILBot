@@ -78,6 +78,8 @@ my $q = new CGI;
 my $dbh = get_dbh();
 my $server = $q->param('server') || $default_server;
 my $channel = $q->param('channel') || $default_channel;
+# Unescape channel string in case it begins with #
+$channel =~ s/\%([A-Fa-f0-9]{2})/pack('C', hex($1))/seg;
 my $date = $q->param('date') || gmt_today();
 if ($date eq 'today') {
     $date = gmt_today();
@@ -92,7 +94,7 @@ if ($date eq gmt_today()) {
 }
 
 
-if ($channel !~ m/\A[.\w-]+\z/smx){
+if ($channel !~ m/\A#?[.\w-]+\z/smx){
     # guard against channel=../../../etc/passwd or so
     confess 'Invalid channel name';
 }
@@ -232,6 +234,10 @@ sub irclog_output {
 
 # check if previous/next date exists in database
     {
+        # Escape channel string in case it begins with #
+        my $enc_channel = $channel;
+        $enc_channel =~ s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+
         my $q1 = $dbh->prepare('SELECT COUNT(*) FROM irclog '
                 . 'WHERE server = ? AND channel = ? AND day = ? AND NOT spam');
         # Date::Simple magic ;)
@@ -239,7 +245,7 @@ sub irclog_output {
         $q1->execute($server, $full_channel, $tomorrow);
         my ($res) = $q1->fetchrow_array();
         if ($res){
-            my $next_url = $base_url . "$server/$channel/$tomorrow";
+            my $next_url = $base_url . "$server/$enc_channel/$tomorrow";
             # where the hell does the leading double slash come from?
             $next_url =~ s{^//+}{/};
             $t->param(NEXT_URL => $next_url);
@@ -249,7 +255,7 @@ sub irclog_output {
         $q1->execute($server, $full_channel, $yesterday);
         ($res) = $q1->fetchrow_array();
         if ($res){
-            my $prev_url = $base_url . "$server/$channel/$yesterday";
+            my $prev_url = $base_url . "$server/$enc_channel/$yesterday";
             $prev_url =~ s{^//+}{/};
             $t->param(PREV_URL => $prev_url);
         }

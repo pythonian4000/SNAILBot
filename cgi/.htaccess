@@ -11,23 +11,23 @@ RewriteCond %{HTTP_REQUEST} !^search
 RewriteRule ^([^/]+)/$ /server-index.pl?server=$1 [L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/([^/]+)/$ /channel-index.pl?server=$1;channel=$2 [L]
+RewriteRule ^([^/]+)/([^/]+)/$ /channel-index.pl?server=$1;channel=$2 [B,L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/([\w_-]+)/?$ /channel-index.pl?server=$1;channel=$2 [L]
+RewriteRule ^([^/]+)/([\w_-]+)/?$ /channel-index.pl?server=$1;channel=$2 [B,L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/([^/]+)/today$ out.pl?server=$1;channel=$2
+RewriteRule ^([^/]+)/([^/]+)/today$ out.pl?server=$1;channel=$2 [B]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/([^/]+)/yesterday$ out.pl?server=$1;channel=$2;date=yesterday
+RewriteRule ^([^/]+)/([^/]+)/yesterday$ out.pl?server=$1;channel=$2;date=yesterday [B]
 
 RewriteCond %{QUERY_STRING} ^server=([^;]+);channel=([^;]+);date=(\d\d\d\d-\d\d-\d\d)
 RewriteCond %{HTTP_REQUEST} ^out\.pl
-RewriteRule ^out.pl /%1/%2/%3? [R=301,L]
+RewriteRule ^out.pl /%1/%2/%3? [R=301,B,L]
 
 RewriteCond %{HTTP_REQUEST} !^search
-RewriteRule ^([^/]+)/([^/]+)/(\d\d\d\d-\d\d-\d\d)  out.pl?server=$1;channel=$2;date=$3 [L]
+RewriteRule ^([^/]+)/([^/]+)/(\d\d\d\d-\d\d-\d\d)  out.pl?server=$1;channel=$2;date=$3 [B,L]
 
 RewriteRule ^search/?$ /search.pl
 RewriteRule ^search/(\d+)/(.*)$	/search.pl?offset=$1;q=$2
