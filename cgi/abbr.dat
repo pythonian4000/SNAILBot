@@ -132,7 +132,7 @@ M::B        --- Module::Build
 M::I        --- Module::Install
 LLVM        --- Low Level Virtual Machine
 RHEL        --- Red Hat Enterprise Linux
-PHP         --- Pansies Hate Perl
+PHP         --- PHP: Hypertext Preprocessor
 PAM         --- Pluggable Authentication Modules
 OCR         --- Optical Character Recognition
 HoH         --- Hash of Hashes
