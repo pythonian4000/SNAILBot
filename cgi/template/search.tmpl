@@ -7,6 +7,29 @@
     <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Purple Haze Stylesheet" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
     <title>IRC logs - Search</title>
+
+    <script type="text/javascript"><![CDATA[
+    var allchannels = new Array();
+    <TMPL_LOOP ALL_CHANNELS>
+    allchannels[<TMPL_VAR SERVER_INT>] = [<TMPL_LOOP CHANNELS>"<TMPL_VAR CHANNEL>",</TMPL_LOOP>];
+    </TMPL_LOOP>
+    function changeChannels(selectedserver) {
+        var channellist = document.getElementById('channel');
+        channellist.options.length = 0;
+        for (var i = 0; i < allchannels[selectedserver].length; i++) {
+            if (i == 0) {
+                channellist.options[channellist.options.length] = new Option(allchannels[selectedserver][i],allchannels[selectedserver][i], true);
+            } else {
+                channellist.options[channellist.options.length] = new Option(allchannels[selectedserver][i],allchannels[selectedserver][i], false);
+            }
+        }
+        if (channellist.options.length >= 5) {
+            channellist.size = 5;
+        } else {
+            channellist.size = channellist.options.length;
+        }
+    }
+    ]]></script>
 </head>
 <body>
     <h1>Search in IRC logs</h1>
@@ -16,7 +39,7 @@
     <form action="<TMPL_VAR BASE_URL>search.pl" method="get"
     accept-charset="utf-8">
         <label for="server">Server</label>
-        <select id="server" name="server" size="<TMPL_VAR SVR_COUNT>">
+        <select id="server" name="server" size="<TMPL_VAR SVR_COUNT>" onchange="changeChannels(this.selectedIndex)">
                 <TMPL_LOOP SERVERS>
                 <option <TMPL_IF SELECTED>selected="selected"</TMPL_IF>><TMPL_VAR
                 SERVER></option>

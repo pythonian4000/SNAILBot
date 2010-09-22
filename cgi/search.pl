@@ -80,6 +80,9 @@ my $dbh = get_dbh();
     my $ch = $q->param('channel') || $default_channel;
 	$ch =~ s/^\#//;
     $t->param(CURRENT_CHANNEL => $ch, CHANNEL => $ch);
+    # server_int is required for the automatic Javascript updating of the channel list
+    # (since list box options are referenced by index, not value).
+    my $server_int = 0;
     for my $server_row (@servers) {
         my $server = $server_row->{'SERVER'};
         my @channels;
@@ -96,7 +99,8 @@ my $dbh = get_dbh();
         if ($server eq $svr){
             @cur_channels = @channels;
         }
-        push @all_channels, {SERVER => $server, CHANNELS => \@channels};
+        push @all_channels, {SERVER_INT => $server_int, CHANNELS => \@channels};
+        $server_int++;
     }
 
     # populate the size of the select box with server names
