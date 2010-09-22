@@ -92,6 +92,7 @@ FFI         --- Foreign Function Interface
 PDD         --- Parrot Design Document
 (?i:DWIM)   --- Do What I Mean                              --- DWIM
 (?i:pugs)   --- Perl 6 User's Golfing System                --- pugs
+AGPL        --- GNU Affero General Public License
 GPL         --- GNU General Public License
 LGPL        --- GNU Lesser General Public License
 JSP         --- JavaServer Pages
