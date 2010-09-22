@@ -156,7 +156,7 @@ if (length($nick) or length($qs)){
     my $q2 = $dbh->prepare("SELECT id, day FROM irclog "
 			. $sql_cond . ' AND day = ? ORDER BY id');
 	my $q3 = $dbh->prepare('SELECT id, timestamp, nick, line FROM irclog '
-			. 'WHERE day = ? AND id >= ? AND id <= ? ORDER BY id ASC');
+			. 'WHERE server = ? AND channel = ? AND day = ? AND id >= ? AND id <= ? ORDER BY id ASC');
 
     $q0->execute(@args);
     my $result_count = ($q0->fetchrow_array);
@@ -193,7 +193,7 @@ if (length($nick) or length($qs)){
 			$last_context = $upper;
 
 			# retrieve context from database
-			$q3->execute( $found_day, $lower, $upper );
+			$q3->execute( $server, $channel, $found_day, $lower, $upper );
 			while (my @r2 = $q3->fetchrow_array){
 				my %args = (
 							id			=> $r2[0],
