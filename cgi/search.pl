@@ -75,12 +75,14 @@ my $dbh = get_dbh();
         }
     }
     # populate the select box with possible channel names to search in
-    my %all_channels;
+    my @all_channels;
+    my @cur_channels;
     my $ch = $q->param('channel') || $default_channel;
 	$ch =~ s/^\#//;
     $t->param(CURRENT_CHANNEL => $ch, CHANNEL => $ch);
-    for my $server (@servers) {
-        my @channels; 
+    for my $server_row (@servers) {
+        my $server = $server_row->{'SERVER'};
+        my @channels;
         my $q2 = $dbh->prepare("SELECT DISTINCT channel FROM irclog WHERE server = '$server' ORDER BY channel");
         $q2->execute();
         while (my @row = $q2->fetchrow_array){
@@ -90,8 +92,11 @@ my $dbh = get_dbh();
             } else {
                 push @channels, {CHANNEL => $row[0]};
             }
-        $all_channels{$server} = [ @channels ];
         }
+        if ($server eq $svr){
+            @cur_channels = @channels;
+        }
+        push @all_channels, {SERVER => $server, CHANNELS => \@channels};
     }
 
     # populate the size of the select box with server names
@@ -102,14 +107,13 @@ my $dbh = get_dbh();
         $t->param(SVR_COUNT => scalar @servers);
     }
     # populate the size of the select box with channel names
-    $t->param(CHANNELS => [ $all_channels{$svr} ]);
-    my @arr = $all_channels{$svr};
-    if (@arr >= 5 ){
+    $t->param(CHANNELS => \@cur_channels);
+    if (@cur_channels >= 5 ){
         $t->param(CH_COUNT => 5);
     } else {
-        $t->param(CH_COUNT => scalar @arr);
+        $t->param(CH_COUNT => scalar @cur_channels);
     }
-    $t->param(ALL_CHANNELS => \%all_channels);
+    $t->param(ALL_CHANNELS => \@all_channels);
 }
 
 my $nick = decode('utf8', $q->param('nick') || '');
