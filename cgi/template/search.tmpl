@@ -6,7 +6,7 @@
     <meta name="description" content="IRC LOG for channel <TMPL_VAR CHANNEL> on <TMPL_VAR SERVER>" />
     <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Purple Haze Stylesheet" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
-    <title>IRC logs - Search</title>
+    <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - Search</title>
 
     <script type="text/javascript"><![CDATA[
     var allchannels = new Array();
@@ -34,7 +34,7 @@
     <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
 </head>
 <body>
-    <h1>Search in IRC logs</h1>
+    <h1>Search the SNAILBot IRC logs</h1>
 
     <p><a href="<TMPL_VAR BASE_URL>">Index</a></p>
 

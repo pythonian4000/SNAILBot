@@ -62,8 +62,9 @@ sub test_calendar {
 
 sub get_channel_index {
     my ($server, $channel) = @_;
-    my $conf     = Config::File::read_config_file('cgi.conf');
-    my $base_url = $conf->{BASE_URL} || q{/};
+    my $conf      = Config::File::read_config_file('cgi.conf');
+    my $site_name = $conf->{SITE_NAME} || q{SNAILBot};
+    my $base_url  = $conf->{BASE_URL} || q{/};
 
     my $t = HTML::Template->new(
             filename            => 'template/channel-index.tmpl',
@@ -76,10 +77,11 @@ sub get_channel_index {
     my $get_dates = 'SELECT DISTINCT day FROM irclog WHERE server = ? AND channel = ? ORDER BY day';
     my $dates     = $dbh->selectcol_arrayref($get_dates, undef, ($server, '#' . $channel));
 
-    $t->param(SERVER   => $server);
-    $t->param(CHANNEL  => $channel);
-    $t->param(BASE_URL => $base_url);
-    $t->param(CALENDAR => calendar_for_channel($server, $channel, $dates, $base_url));
+    $t->param(SERVER    => $server);
+    $t->param(CHANNEL   => $channel);
+    $t->param(SITE_NAME => $site_name);
+    $t->param(BASE_URL  => $base_url);
+    $t->param(CALENDAR  => calendar_for_channel($server, $channel, $dates, $base_url));
     {
         # Find and insert extras
         my $analytics_header = "extras/analytics-header.tmpl";

@@ -50,8 +50,9 @@ sub get_server_index {
     my $server = shift;
 	my $dbh = get_dbh();
 
-	my $conf = Config::File::read_config_file('cgi.conf');
-	my $base_url = $conf->{BASE_URL} || q{/};
+	my $conf      = Config::File::read_config_file('cgi.conf');
+    my $site_name = $conf->{SITE_NAME} || q{SNAILBot};
+	my $base_url  = $conf->{BASE_URL} || q{/};
 
 	my $sth = $dbh->prepare("SELECT DISTINCT channel FROM irclog WHERE server = '$server'");
 	$sth->execute();
@@ -69,8 +70,9 @@ sub get_server_index {
 			global_vars         => 1,
             die_on_bad_params   => 0,
     );
-	$template->param(BASE_URL => $base_url);
-    $template->param(  server => $server );
+    $template->param(SITE_NAME => $site_name);
+	$template->param( BASE_URL => $base_url);
+    $template->param(   server => $server );
 	$template->param( channels => \@channels );
     {
         # Find and insert extras

@@ -39,8 +39,9 @@ use utf8;
 my $default_server = 'irc.freenode.net';
 my $default_channel = 'openhatch';
 
-my $conf = Config::File::read_config_file("cgi.conf");
-my $base_url = $conf->{BASE_URL} || "/";
+my $conf      = Config::File::read_config_file("cgi.conf");
+my $site_name = $conf->{SITE_NAME} || q{SNAILBot};
+my $base_url  = $conf->{BASE_URL} || "/";
 my $days_per_page = 10;
 my $lines_per_day = 50; # not yet used
 
@@ -54,14 +55,15 @@ my $t = HTML::Template->new(
         die_on_bad_params => 0,
         #default_escape => 'html',
 );
-$t->param(BASE_URL => $base_url);
+$t->param(SITE_NAME => $site_name);
+$t->param(BASE_URL  => $base_url);
 my $start = $q->param("start") || 0;
 
 my $offset = $q->param("offset") || 0;
 die unless $offset =~ m/^\d+$/;
 
 # Set this to 1 if you want to include extras in the search page (e.g. analytics code).
-my $insert_extras_into_search_page = 0;
+my $insert_extras_into_search_page = 1;
 if ($insert_extras_into_search_page){
     # Find and insert extras into search page
     my $analytics_header = "extras/analytics-header.tmpl";

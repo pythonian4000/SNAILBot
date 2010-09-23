@@ -39,8 +39,9 @@ use Cache::SizeAwareFileCache;
 # Configuration
 # $base_url is the absoulte URL to the directoy where index.pl and out.pl live
 # If they live in the root of their own virtual host, set it to "/".
-my $conf = Config::File::read_config_file('cgi.conf');
-my $base_url = $conf->{BASE_URL} || q{/};
+my $conf      = Config::File::read_config_file('cgi.conf');
+my $site_name = $conf->{SITE_NAME} || q{SNAILBot};
+my $base_url  = $conf->{BASE_URL} || q{/};
 
 # I'm too lazy right to move this to  a config file, because Config::File seems
 # unable to handle arrays, just hashes.
@@ -168,6 +169,7 @@ sub irclog_output {
             $t->param(ANALYTICS_FOOTER => q{} . read_file($analytics_footer));
         }
     }
+    $t->param(SITE_NAME => $site_name);
     $t->param(BASE_URL  => $base_url);
     my $self_url = $base_url . "/$server/$channel/$date";
     my $db = $dbh->prepare('SELECT id, nick, timestamp, line FROM irclog '

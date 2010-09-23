@@ -6,12 +6,12 @@
     <meta name="description" content="IRC logs by SNAILBot" />
     <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Irclog default Stylesheet" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
-    <title>IRC logs - Index</title>
+    <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - Index</title>
 
     <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
 </head>
 <body>
-    <h1>Index of IRC logs</h1>
+    <h1>Index of <TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs</h1>
 
     <p><a href="<TMPL_VAR BASE_URL>search.pl">Search the logs</a></p>
 

@@ -46,8 +46,9 @@ sub get_index {
 
 	my $dbh = get_dbh();
 
-	my $conf = Config::File::read_config_file('cgi.conf');
-	my $base_url = $conf->{BASE_URL} || q{/};
+	my $conf      = Config::File::read_config_file('cgi.conf');
+    my $site_name = $conf->{SITE_NAME} || q{SNAILBot};
+	my $base_url  = $conf->{BASE_URL} || q{/};
 
 	my $sth = $dbh->prepare("SELECT DISTINCT server FROM irclog");
 	$sth->execute();
@@ -65,8 +66,9 @@ sub get_index {
 			global_vars         => 1,
             die_on_bad_params   => 0,
     );
-	$template->param(BASE_URL => $base_url);
-	$template->param( servers => \@servers );
+    $template->param(SITE_NAME => $site_name);
+	$template->param( BASE_URL => $base_url);
+	$template->param(  servers => \@servers );
     {
         # Find and insert extras
         my $analytics_header = "extras/analytics-header.tmpl";
