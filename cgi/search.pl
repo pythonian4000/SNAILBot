@@ -60,6 +60,7 @@ my $start = $q->param("start") || 0;
 my $offset = $q->param("offset") || 0;
 die unless $offset =~ m/^\d+$/;
 
+# Set this to 1 if you want to include extras in the search page (e.g. analytics code).
 my $insert_extras_into_search_page = 0;
 if ($insert_extras_into_search_page){
     # Find and insert extras into search page
