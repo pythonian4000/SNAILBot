@@ -137,7 +137,7 @@ sub format_time {
 }
 
 sub revision_links {
-    my ($r, $state, $channel, $botname) = @_;
+    my ($r, $state, $server, $channel, $botname) = @_;
     $channel = 'parrot' if $botname =~ /^rakudo/;
     $channel = 'specs'  if $botname =~ /^speck?bot/;
     my %prefixes = (
@@ -333,12 +333,36 @@ sub rt_links {
             . qq{</a>};
 }
 
-sub irc_channel_links {
-    my ($key, $state) = @_;
-    $key =~ s/^#//;
-    return qq{<a href="/$key/today">}
-            . encode_entities("#$key", ENTITIES) 
-            . qq{</a>};
+my $irc_links = qr/#(?:perl6-soc|perl6|parrot|cdk|bioclipse|parrotsketch)\b/;
+
+{
+    my @all_channels;
+    my $base_dir = "channels/";
+    opendir my($dh), $base_dir or die "Couldn't open dir '$base_dir': $!";
+    my @servers = grep { !/^\./ } readdir $dh;
+    closedir $dh;
+    foreach my $server_dir (@servers){
+        opendir my($dh), "$base_dir$server_dir" or next;
+        my @channels = grep { !/^\./ } readdir $dh;
+        closedir $dh;
+        foreach my $channel_dir (@channels){
+            if (-d "$base_dir$server_dir/$channel_dir"){
+                push @all_channels, $channel_dir;
+            }
+        }
+    }
+    if (@all_channels){
+        $irc_links = join '|', @all_channels;
+        $irc_links = qr/#(?:$irc_links)\b/;
+    }
+
+    sub irc_channel_links {
+        my ($key, $state, $server) = @_;
+        $key =~ s/^#//;
+        return qq{<a href="/$server/$key/today">}
+                . encode_entities("#$key", ENTITIES) 
+                . qq{</a>};
+    }
 }
 
 my %output_chain = (
@@ -389,7 +413,7 @@ my %output_chain = (
              rest   => 'irc_channel_links',
         },
         irc_channel_links => {
-            re      => qr{#(?:perl6-soc|perl6|parrot|cdk|bioclipse|parrotsketch)\b},
+            re      => $irc_links,
             match   => \&irc_channel_links,
             rest    => 'abbrs',
         },
@@ -431,7 +455,7 @@ my %output_chain = (
 
 # does all the output processing of ordinary output lines
 sub output_process {
-    my ($str, $rule, $channel, $nick) = @_;
+    my ($str, $rule, $server, $channel, $nick) = @_;
     return qq{} unless length $str;
     my $res = "";
     if ($rule eq 'encode'){
@@ -441,16 +465,16 @@ sub output_process {
         my $state = {};
         while ($str =~ m/$re/){
             my ($pre, $match, $post) = ($`, $&, $');
-            $res .= output_process($pre, $output_chain{$rule}{rest}, $channel, $nick);
+            $res .= output_process($pre, $output_chain{$rule}{rest}, $server, $channel, $nick);
             my $m = $output_chain{$rule}{match};
             if (ref $m && ref $m eq 'CODE'){
-                $res .= &$m($match, $state, $channel, $nick);
+                $res .= &$m($match, $state, $server, $channel, $nick);
             } else {
                 $res .= $m;
             }
             $str = $post;
         }
-        $res .= output_process($str, $output_chain{$rule}{rest}, $channel, $nick);
+        $res .= output_process($str, $output_chain{$rule}{rest}, $server, $channel, $nick);
     }
     return $res;
 }
@@ -487,7 +511,8 @@ sub message_line {
         TIME        => format_time($args_ref->{timestamp}),
         MESSAGE     => output_process(my_decode(
                             $args_ref->{message}), 
-                            "ansi_color_codes", 
+                            "ansi_color_codes",
+                            $args_ref->{server},
                             $args_ref->{channel},
                             $args_ref->{nick},
                             ),
