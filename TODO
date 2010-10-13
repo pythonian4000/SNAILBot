@@ -1,3 +1,10 @@
+TODO LIST
+=========
+* Add modular support for displaying graphs of channel usercounts
+  as per http://irclogs.jackgrigg.com/irc.freenode.net/openhatch/2010-10-13
+
+ORIGINAL TODO LIST
+==================
 * links to colabti irclogs - but how to know for which channels?
 * fix context in search results for adjacent hits
 * fix spam.pl with rewritten URLs
