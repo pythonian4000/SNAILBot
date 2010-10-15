@@ -22,10 +22,28 @@
 	
 	<script type="text/javascript" src="<TMPL_VAR BASE_URL>js/jquery.min.js"></script>
 	<script type="text/javascript" src="<TMPL_VAR BASE_URL>js/jquery.autocomplete.js"></script>
+    <TMPL_IF USERCOUNT_DATA>
+    <script type="text/javascript" src="http://danvk.org/dygraphs/dygraph-combined.js"></script>
+    </TMPL_IF>
 
     <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
 </head>
 <body>
+    <TMPL_IF USERCOUNT_DATA>
+    <TMPL_VAR NAME=USERCOUNT_CHART DEFAULT="">
+    <script type="text/javascript">
+        var usercountdata = new Array();
+        <TMPL_LOOP USERCOUNT_DATA>usercountdata[<TMPL_VAR ID>] = "<TMPL_VAR DATETIME>,<TMPL_VAR COUNT>";</TMPL_LOOP>
+        guc = new Dygraph(
+            document.getElementById("div_guc"),
+            function getUsercountData() {
+                return "" +
+                "Date,Usercount\n" +
+                usercountdata.join("\n");
+            }
+            );
+    </script>
+    </TMPL_IF>
     <TMPL_VAR NAME=CHANNEL_LOGO DEFAULT="">
 
     <h1>IRC log for <TMPL_VAR SERVER>/#<TMPL_VAR CHANNEL>, <TMPL_VAR DATE></h1>
@@ -68,8 +86,8 @@
     <TMPL_VAR NAME=CHANNEL_LINKS DEFAULT="">
 
     <TMPL_INCLUDE NAME="footer.tmpl">
-		
-	<script type="text/javascript" src="<TMPL_VAR BASE_URL>js/nickfilter.js"></script>		
+
+	<script type="text/javascript" src="<TMPL_VAR BASE_URL>js/nickfilter.js"></script>
 </body>
 </html>
 <!-- <TMPL_IF DEBUG> <TMPL_VAR DEBUG> </TMPL_IF> -->

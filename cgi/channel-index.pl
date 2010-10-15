@@ -27,7 +27,7 @@ use File::Slurp;
 use HTML::Template;
 use Cache::FileCache;
 use lib '../lib';
-use IrcLog qw(get_dbh gmt_today);
+use IrcLog qw(get_dbh gmt_today gmt_datetime);
 
 # test_calendar();
 go();
@@ -82,6 +82,15 @@ sub get_channel_index {
     $t->param(SITE_NAME => $site_name);
     $t->param(BASE_URL  => $base_url);
     $t->param(CALENDAR  => calendar_for_channel($server, $channel, $dates, $base_url));
+    {
+        # Insert usercount chart if present
+        my $clf = "channels/$server/$channel/usercount.tmpl";
+        if (-e $clf) {
+            my @usercount_data = usercount_chart_for_channel($server, '#' . $channel, $dbh);
+            $t->param(USERCOUNT_CHART => q{} . read_file($clf));
+            $t->param(USERCOUNT_DATA => \@usercount_data);
+        }
+    }
     {
         # Find and insert extras
         my $analytics_header = "extras/analytics-header.tmpl";
@@ -151,4 +160,28 @@ sub calendar_for_channel {
     return $html;
 }
 
+# Returns the data for creating a usercount chart for all available data.
+sub usercount_chart_for_channel {
+    my ($server, $channel, $dbh) = @_;
+    my @usercount_data;
+    # Prepare the query that will fetch all the usercounts.
+    my $q = $dbh->prepare('SELECT timestamp, count FROM usercount '
+        . 'WHERE server = ? AND channel = ?');
+    # Execute the query.
+    $q->execute($server, $channel);
+    my $id = 0;
+    while (my @row = $q->fetchrow_array) {
+        my $timestamp = $row[0];
+        my $count = $row[1];
+        # Create array items that HTML::Template will use.
+        my %usercount_point = (
+            ID => $id,
+            DATETIME => gmt_datetime($timestamp),
+            COUNT => $count
+        );
+        push(@usercount_data, \%usercount_point);
+        $id += 1;
+    }
+    return @usercount_data;
+}
 # vim: syn=perl sw=4 ts=4 expandtab

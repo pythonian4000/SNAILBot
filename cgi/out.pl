@@ -30,7 +30,7 @@ use HTML::Template;
 use Config::File;
 use File::Slurp;
 use lib '../lib';
-use IrcLog qw(get_dbh gmt_today);
+use IrcLog qw(get_dbh gmt_today gmt_datetime);
 use IrcLog::WWW qw(http_header message_line my_encode);
 use Cache::SizeAwareFileCache;
 #use Data::Dumper;
@@ -144,6 +144,15 @@ sub irclog_output {
 
     $t->param(ADMIN => 1) if ($q->param('admin'));
 
+    {
+        # Insert usercount chart if present
+        my $clf = "channels/$server/$channel/usercount.tmpl";
+        if (-e $clf) {
+            my @usercount_data = usercount_chart_for_channel_day($server, $full_channel, $date);
+            $t->param(USERCOUNT_CHART => q{} . read_file($clf));
+            $t->param(USERCOUNT_DATA => \@usercount_data);
+        }
+    }
     {
         # Insert channel logo if present
         my $clf = "channels/$server/$channel/logo.tmpl";
@@ -267,5 +276,29 @@ sub irclog_output {
     return my_encode($t->output);
 }
 
+# Returns the data for creating a one-day usercount chart.
+sub usercount_chart_for_channel_day {
+    my ($server, $channel, $date) = @_;
+    my @usercount_data;
+    # Prepare the query that will fetch the one day's usercounts.
+    my $q = $dbh->prepare('SELECT timestamp, count FROM usercount '
+        . 'WHERE server = ? AND channel = ? AND day = ?');
+    # Execute the query.
+    $q->execute($server, $channel, $date);
+    my $id = 0;
+    while (my @row = $q->fetchrow_array) {
+        my $timestamp = $row[0];
+        my $count = $row[1];
+        # Create array items that HTML::Template will use.
+        my %usercount_point = (
+            ID => $id,
+            DATETIME => gmt_datetime($timestamp),
+            COUNT => $count
+        );
+        push(@usercount_data, \%usercount_point);
+        $id += 1;
+    }
+    return @usercount_data;
+}
 
 # vim: sw=4 ts=4 expandtab

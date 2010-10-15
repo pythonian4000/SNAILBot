@@ -14,6 +14,7 @@ use base 'Exporter';
 our @EXPORT_OK = qw(
         get_dbh
         gmt_today
+        gmt_datetime
         );
 
 # get a database handle.
@@ -36,6 +37,12 @@ sub get_dbh {
 sub gmt_today {
     my @d = gmtime(time);
     return sprintf("%04d-%02d-%02d", $d[5]+1900, $d[4] + 1, $d[3]);
+}
+
+# returns supplied epoch in GMT in the form "YYYY/MM/DD HH:MM:SS"
+sub gmt_datetime {
+    my @d = gmtime(shift);
+    return sprintf("%04d/%02d/%02d %02d:%02d:%02d", $d[5]+1900, $d[4]+1, $d[3], $d[2], $d[1], $d[0]);
 }
 
 
