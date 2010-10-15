@@ -8,6 +8,7 @@ http://moritz.faui2k3.org/en/ilbot
 The following new features have been added:
  * Multiple servers can be logged from a single instance.
  * Modular approach to including:
+   * Analytics code, site counters etc.
    * Channel-specific links.
    * Channel-specific logos.
-   * Analytics code, site counters etc.
+   * Channel-specific interactive usercount charts.
