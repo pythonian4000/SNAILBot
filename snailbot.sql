@@ -1,8 +1,8 @@
--- MySQL dump 10.11
+-- MySQL dump 10.13  Distrib 5.1.50, for pc-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: snailbotdb
 -- ------------------------------------------------------
--- Server version	5.0.51a-24+lenny3
+-- Server version	5.0.90-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,15 +16,19 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Not dumping tablespaces as no INFORMATION_SCHEMA.FILES table on this server
+--
+
+--
 -- Table structure for table `irclog`
 --
 
 DROP TABLE IF EXISTS `irclog`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `irclog` (
   `id` int(11) NOT NULL auto_increment,
-  `server` varchar(30),
+  `server` varchar(30) default NULL,
   `channel` varchar(30) default NULL,
   `day` char(10) default NULL,
   `nick` varchar(40) default NULL,
@@ -37,5 +41,34 @@ CREATE TABLE `irclog` (
   KEY `irclog_day_channel_idx` (`day`,`channel`),
   KEY `channel_idx` (`channel`),
   FULLTEXT KEY `message_index` (`line`)
-) ENGINE=MyISAM AUTO_INCREMENT=2357358 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+) ENGINE=MyISAM AUTO_INCREMENT=2452696 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `usercount`
+--
+
+DROP TABLE IF EXISTS `usercount`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usercount` (
+  `id` int(11) NOT NULL auto_increment,
+  `server` varchar(30) default NULL,
+  `channel` varchar(30) default NULL,
+  `day` char(10) default NULL,
+  `timestamp` int(11) default NULL,
+  `count` int(11) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2451419 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2010-10-15  2:19:28

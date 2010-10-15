@@ -35,39 +35,66 @@ use Data::Dumper;
 
     my $dbh = get_dbh();
 
-    sub prepare {
+    sub prepare_irclog {
         my $dbh = shift;
         return $dbh->prepare("INSERT INTO irclog (server, channel, day, nick, timestamp, line) VALUES(?, ?, ?, ?, ?, ?)");
     }
-    my $q = prepare($dbh);
-    sub dbwrite {
+    sub prepare_usercount {
+        my $dbh = shift;
+        return $dbh->prepare("INSERT INTO usercount (server, channel, day, timestamp, count) VALUES(?, ?, ?, ?, ?)");
+    }
+    my $q1 = prepare_irclog($dbh);
+    my $q2 = prepare_usercount($dbh);
+    sub dbwrite_irclog {
         my ($server, $channel, $who, $line) = @_;
         # mncharity aka putter has an IRC client that prepends some lines with
         # a BOM. Remove that:
         $line =~ s/\A\x{ffef}//;
         my @sql_args = ($server, $channel, gmt_today(), $who, time, $line);
         if ($dbh->ping){
-            $q->execute(@sql_args);
+            $q1->execute(@sql_args);
         } else {
-            $q = prepare(get_dbh());
-            $q->execute(@sql_args);
+            $q1 = prepare_irclog(get_dbh());
+            $q1->execute(@sql_args);
+        }
+        return;
+    }
+    sub dbwrite_usercount {
+        my ($server, $channel, $count) = @_;
+        my @sql_args = ($server, $channel, gmt_today(), time, $count);
+        if ($dbh->ping){
+            $q2->execute(@sql_args);
+        } else {
+            $q2 = prepare_usercount(get_dbh());
+            $q2->execute(@sql_args);
         }
         return;
     }
 
     use base 'Bot::BasicBot';
 
+    sub _get_channel_names_count {
+        my $self = shift;
+        my $channel = shift;
+        $self->names($channel);
+        my $names = $self->channel_data ($channel);
+        if (defined $self->{building_channel_data}->{$channel}) {
+            $names = $self->{building_channel_data}->{$channel};
+        }
+        return scalar(keys(%$names));
+    }
+
     sub said {
         my $self = shift;
         my $e = shift;
-        dbwrite($self->{server}, $e->{channel}, $e->{who}, $e->{body});
+        dbwrite_irclog($self->{server}, $e->{channel}, $e->{who}, $e->{body});
         return undef;
     }
 
     sub emoted {
         my $self = shift;
         my $e = shift;
-        dbwrite($self->{server}, $e->{channel}, '* ' . $e->{who}, $e->{body});
+        dbwrite_irclog($self->{server}, $e->{channel}, '* ' . $e->{who}, $e->{body});
         return undef;
 
     }
@@ -75,21 +102,27 @@ use Data::Dumper;
     sub chanjoin {
         my $self = shift;
         my $e = shift;
-        dbwrite($self->{server}, $e->{channel}, '',  $e->{who} . ' joined ' . $e->{channel});
+        dbwrite_irclog($self->{server}, $e->{channel}, '',  $e->{who} . ' joined ' . $e->{channel});
+        my $count = $self->_get_channel_names_count($e->{channel});
+        dbwrite_usercount($self->{server}, $e->{channel}, $count);
         return undef;
     }
 
     sub chanquit {
         my $self = shift;
         my $e = shift;
-        dbwrite($self->{server}, $e->{channel}, '', $e->{who} . ' left ' . $e->{channel});
+        dbwrite_irclog($self->{server}, $e->{channel}, '', $e->{who} . ' left ' . $e->{channel});
+        my $count = $self->_get_channel_names_count($e->{channel});
+        dbwrite_usercount($self->{server}, $e->{channel}, $count);
         return undef;
     }
 
     sub chanpart {
         my $self = shift;
         my $e = shift;
-        dbwrite($self->{server}, $e->{channel}, '',  $e->{who} . ' left ' . $e->{channel});
+        dbwrite_irclog($self->{server}, $e->{channel}, '',  $e->{who} . ' left ' . $e->{channel});
+        my $count = $self->_get_channel_names_count($e->{channel});
+        dbwrite_usercount($self->{server}, $e->{channel}, $count);
         return undef;
     }
 
@@ -113,7 +146,7 @@ use Data::Dumper;
     sub topic {
         my $self = shift;
         my $e = shift;
-        dbwrite($self->{server}, $e->{channel}, "", 'Topic for ' . $e->{channel} . ' is now ' . $e->{topic});
+        dbwrite_irclog($self->{server}, $e->{channel}, "", 'Topic for ' . $e->{channel} . ' is now ' . $e->{topic});
         return undef;
     }
 
@@ -122,7 +155,7 @@ use Data::Dumper;
         my($old, $new) = @_;
 
         foreach my $channel ($self->_channels_for_nick($new)) {
-            dbwrite($self->{server}, $channel, "", $old . ' is now known as ' . $new);
+            dbwrite_irclog($self->{server}, $channel, "", $old . ' is now known as ' . $new);
         }
         
         return undef;
@@ -131,7 +164,9 @@ use Data::Dumper;
     sub kicked {
         my $self = shift;
         my $e = shift;
-        dbwrite($self->{server}, $e->{channel}, "", $e->{kicked} . ' was kicked by ' . $e->{who} . ': ' . $e->{reason});
+        dbwrite_irclog($self->{server}, $e->{channel}, "", $e->{kicked} . ' was kicked by ' . $e->{who} . ': ' . $e->{reason});
+        my $count = $self->_get_channel_names_count($e->{channel});
+        dbwrite_usercount($self->{server}, $e->{channel}, $count);
         return undef;
     }
 
