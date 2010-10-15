@@ -108,15 +108,6 @@ use Data::Dumper;
         return undef;
     }
 
-    sub chanquit {
-        my $self = shift;
-        my $e = shift;
-        dbwrite_irclog($self->{server}, $e->{channel}, '', $e->{who} . ' left ' . $e->{channel});
-        my $count = $self->_get_channel_names_count($e->{channel});
-        dbwrite_usercount($self->{server}, $e->{channel}, $count);
-        return undef;
-    }
-
     sub chanpart {
         my $self = shift;
         my $e = shift;
