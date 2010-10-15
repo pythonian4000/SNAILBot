@@ -111,8 +111,10 @@ use Data::Dumper;
     sub chanpart {
         my $self = shift;
         my $e = shift;
+        # An integer difference that can be applied to the count - see userquit.
+        my $diff = shift || 0;
         dbwrite_irclog($self->{server}, $e->{channel}, '',  $e->{who} . ' left ' . $e->{channel});
-        my $count = $self->_get_channel_names_count($e->{channel});
+        my $count = $self->_get_channel_names_count($e->{channel}) + $diff;
         dbwrite_usercount($self->{server}, $e->{channel}, $count);
         return undef;
     }
@@ -130,7 +132,8 @@ use Data::Dumper;
         my $nick = $e->{who};
 
         foreach my $channel ($self->_channels_for_nick($nick)) {
-            $self->chanpart({ who => $nick, channel => $channel });
+            # For some reason userquit results in one too large a usercount. So add a -1 diff.
+            $self->chanpart({ who => $nick, channel => $channel }, -1);
         }
     }
 
