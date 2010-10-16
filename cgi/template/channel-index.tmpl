@@ -9,6 +9,7 @@
     <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - <TMPL_VAR SERVER>/#<TMPL_VAR CHANNEL></title>
 
     <TMPL_IF USERCOUNT_DATA>
+    <!--[if IE]><script src="<TMPL_VAR BASE_URL>js/excanvas.js"></script><![endif]-->
     <script type="text/javascript" src="http://danvk.org/dygraphs/dygraph-combined.js"></script>
     </TMPL_IF>
 
