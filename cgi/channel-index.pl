@@ -92,6 +92,20 @@ sub get_channel_index {
         }
     }
     {
+        # Insert channel logo if present
+        my $clf = "channels/$server/$channel/logo.tmpl";
+        if (-e $clf) {
+            $t->param(CHANNEL_LOGO => q{} . read_file($clf));
+        }
+    }
+    {
+        # Insert channel-specific links if present
+        my $clf = "channels/$server/$channel/links.tmpl";
+        if (-e $clf) {
+            $t->param(CHANNEL_LINKS => q{} . read_file($clf));
+        }
+    }
+    {
         # Find and insert extras
         my $analytics_header = "extras/analytics-header.tmpl";
         if (-e $analytics_header) {

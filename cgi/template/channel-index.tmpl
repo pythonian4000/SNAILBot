@@ -30,9 +30,11 @@
             );
     </script>
     </TMPL_IF>
+    <TMPL_VAR NAME=CHANNEL_LOGO DEFAULT="">
 
     <h1><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - Channel Index</h1>
 
+    <TMPL_VAR NAME=CHANNEL_LINKS DEFAULT="">
 	<TMPL_INCLUDE linkblock.tmpl>
 
 	<h2 id="<TMPL_VAR CHANNEL>"><TMPL_VAR SERVER>/#<TMPL_VAR CHANNEL></h2>
