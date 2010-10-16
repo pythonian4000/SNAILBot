@@ -357,6 +357,7 @@ my $irc_links = qr/#(?:perl6-soc|perl6|parrot|cdk|bioclipse|parrotsketch)\b/;
 
 {
     my @all_channels;
+    my %server_channels;
     my $base_dir = "channels/";
     opendir my($dh), $base_dir or die "Couldn't open dir '$base_dir': $!";
     my @servers = grep { !/^\./ } readdir $dh;
@@ -365,11 +366,14 @@ my $irc_links = qr/#(?:perl6-soc|perl6|parrot|cdk|bioclipse|parrotsketch)\b/;
         opendir my($dh), "$base_dir$server_dir" or next;
         my @channels = grep { !/^\./ } readdir $dh;
         closedir $dh;
+        my @channel_arr;
         foreach my $channel_dir (@channels){
             if (-d "$base_dir$server_dir/$channel_dir"){
-                push @all_channels, $channel_dir;
+                push @channel_arr, $channel_dir;
             }
         }
+        $server_channels{$server_dir} = \@channel_arr;
+        push(@all_channels, @channel_arr);
     }
     if (@all_channels){
         $irc_links = join '|', @all_channels;
@@ -379,9 +383,14 @@ my $irc_links = qr/#(?:perl6-soc|perl6|parrot|cdk|bioclipse|parrotsketch)\b/;
     sub irc_channel_links {
         my ($key, $state, $server) = @_;
         $key =~ s/^#//;
-        return qq{<a href="/$server/$key/today">}
-                . encode_entities("#$key", ENTITIES) 
-                . qq{</a>};
+        my $channel_arr = $server_channels{$server};
+        if (exists {map {$_ => 1} @$channel_arr}->{$key}) {
+            return qq{<a href="/$server/$key/today">}
+                    . encode_entities("#$key", ENTITIES) 
+                    . qq{</a>};
+        } else {
+            return encode_entities("#$key", ENTITIES);
+        }
     }
 }
 
