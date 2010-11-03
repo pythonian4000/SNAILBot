@@ -103,8 +103,13 @@ use Data::Dumper;
         my $self = shift;
         my $e = shift;
         dbwrite_irclog($self->{server}, $e->{channel}, '',  $e->{who} . ' joined ' . $e->{channel});
-        my $count = $self->_get_channel_names_count($e->{channel});
-        dbwrite_usercount($self->{server}, $e->{channel}, $count);
+        # For some reason the usercount when the bot joins returns 1.
+        # So for now do not add datapoints when the bot joins the channel.
+        # (The discrepancy will be included in the next datapoint.)
+        if ($e->{who} ne $self->{nick}) {
+            my $count = $self->_get_channel_names_count($e->{channel});
+            dbwrite_usercount($self->{server}, $e->{channel}, $count);
+        }
         return undef;
     }
 
