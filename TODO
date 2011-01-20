@@ -3,6 +3,10 @@ TODO LIST
 * Prevent either logging or viewing of privmsg to IRC bot.
 * Extend bot response keywords beyond "help":
   * e.g. "admin", "hi", "owner", identify"
+* Make generated pages compatible with mobile browsers.
+  * iPhone/iPod Touch - underway
+  * Android
+  * others?
 
 Already done:
 * Add modular support for displaying graphs of channel usercounts
