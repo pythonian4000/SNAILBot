@@ -83,6 +83,15 @@ sub get_channel_index {
     $t->param(BASE_URL  => $base_url);
     $t->param(CALENDAR  => calendar_for_channel($server, $channel, $dates, $base_url));
     {
+        # Determine if browser is an iPhone/iPod Touch
+        my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+        my $iPhone_check = index $user_agent_string,'iPhone';
+        my $iPod_check = index $user_agent_string,'iPod';
+        if ($iPhone_check >= 0 || $iPod_check >= 0) {
+            $t->param(IOS => 1);
+        }
+    }
+    {
         # Insert usercount chart if present
         my $clf = "channels/$server/$channel/usercount.tmpl";
         if (-e $clf) {
@@ -102,7 +111,11 @@ sub get_channel_index {
         # Insert channel-specific links if present
         my $clf = "channels/$server/$channel/links.tmpl";
         if (-e $clf) {
-            $t->param(CHANNEL_LINKS => q{} . read_file($clf));
+            my $links = q{} . read_file($clf);
+            if ($t->param('IOS')) {
+                $links =~ s/\|//g;
+            }
+            $t->param(CHANNEL_LINKS => $links);
         }
     }
     {

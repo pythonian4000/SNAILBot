@@ -4,7 +4,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta name="description" content="IRC logs by SNAILBot" />
-    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Irclog default Stylesheet" />
+    <TMPL_IF IOS>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>iphone.css" title="SNAILBot iPhone Stylesheet" />
+    <TMPL_ELSE>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>desktop.css" title="SNAILBot Desktop Stylesheet" />
+    </TMPL_IF>
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
     <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - <TMPL_VAR SERVER>/#<TMPL_VAR CHANNEL></title>
 
@@ -16,6 +21,9 @@
     <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
 </head>
 <body>
+    <div id="header">
+    <TMPL_IF IOS>
+    <TMPL_ELSE>
     <TMPL_IF USERCOUNT_DATA>
     <TMPL_VAR NAME=USERCOUNT_CHART DEFAULT="">
     <script type="text/javascript">
@@ -36,16 +44,20 @@
     </script>
     </TMPL_IF>
     <TMPL_VAR NAME=CHANNEL_LOGO DEFAULT="">
+    </TMPL_IF>
 
     <h1><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - Channel Index</h1>
 
     <TMPL_VAR NAME=CHANNEL_LINKS DEFAULT="">
 	<TMPL_INCLUDE linkblock.tmpl>
+    </div>
 
+    <div id="content">
 	<h2 id="<TMPL_VAR CHANNEL>"><TMPL_VAR SERVER>/#<TMPL_VAR CHANNEL></h2>
 	<p><strong><a href="<TMPL_VAR BASE_URL><TMPL_VAR NAME=SERVER ESCAPE=URL>/<TMPL_VAR NAME=CHANNEL ESCAPE=URL>/today">Today</a></strong></p>
 
 	<TMPL_VAR CALENDAR>
+    </div>
 
     <TMPL_INCLUDE footer.tmpl>
   </body>

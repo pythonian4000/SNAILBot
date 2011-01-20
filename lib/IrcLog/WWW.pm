@@ -254,13 +254,18 @@ sub ansi_color_codes {
 
 sub linkify {
     my $url = shift;
+    my $state = shift;
     my $display_url = $url;
-    if (length($display_url) >= 50){
-        $display_url
-            = substr( $display_url, 0, 30 )
-            . '[…]'
-            . substr( $display_url, -17 )
-            ;
+    if ($state->{'ios'}) {
+        $display_url = '[LINK]';
+    } else {
+        if (length($display_url) >= 50){
+            $display_url
+                = substr( $display_url, 0, 30 )
+                . '[…]'
+                . substr( $display_url, -17 )
+                ;
+        }
     }
     $url = encode_entities( $url, ENTITIES );
     return qq{<a href="$url" title="$url">}
@@ -484,7 +489,7 @@ my %output_chain = (
 
 # does all the output processing of ordinary output lines
 sub output_process {
-    my ($str, $rule, $server, $channel, $nick) = @_;
+    my ($str, $rule, $server, $channel, $nick, $ios) = @_;
     return qq{} unless length $str;
     my $res = "";
     if ($rule eq 'encode'){
@@ -492,9 +497,10 @@ sub output_process {
     } else {
         my $re = $output_chain{$rule}{re};
         my $state = {};
+        $state->{'ios'} = $ios;
         while ($str =~ m/$re/){
             my ($pre, $match, $post) = ($`, $&, $');
-            $res .= output_process($pre, $output_chain{$rule}{rest}, $server, $channel, $nick);
+            $res .= output_process($pre, $output_chain{$rule}{rest}, $server, $channel, $nick, $ios);
             my $m = $output_chain{$rule}{match};
             if (ref $m && ref $m eq 'CODE'){
                 $res .= &$m($match, $state, $server, $channel, $nick);
@@ -503,7 +509,7 @@ sub output_process {
             }
             $str = $post;
         }
-        $res .= output_process($str, $output_chain{$rule}{rest}, $server, $channel, $nick);
+        $res .= output_process($str, $output_chain{$rule}{rest}, $server, $channel, $nick, $ios);
     }
     return $res;
 }
@@ -532,7 +538,7 @@ sub break_apart {
 
 
 sub message_line {
-    my ($args_ref, $c) = @_;
+    my ($args_ref, $c, $ios) = @_;
     my $nick = $args_ref->{nick};
     my $colors = $args_ref->{colors};
     my %h = (
@@ -544,6 +550,7 @@ sub message_line {
                             $args_ref->{server},
                             $args_ref->{channel},
                             $args_ref->{nick},
+                            $ios,
                             ),
         LINE_NUMBER => ++$args_ref->{line_number},
     );

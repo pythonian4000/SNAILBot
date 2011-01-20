@@ -4,7 +4,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta name="description" content="IRC LOG for channel #<TMPL_VAR CHANNEL>" />
-    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Irclog Stylesheet" />
+    <TMPL_IF IOS>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>iphone.css" title="SNAILBot iPhone Stylesheet" />
+    <TMPL_ELSE>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>desktop.css" title="SNAILBot Desktop Stylesheet" />
+    </TMPL_IF>
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
     <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC log for <TMPL_VAR SERVER>/#<TMPL_VAR CHANNEL>, <TMPL_VAR DATE></title>
 	<TMPL_IF ADMIN>
@@ -30,6 +35,9 @@
     <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
 </head>
 <body>
+    <div id="header">
+    <TMPL_IF IOS>
+    <TMPL_ELSE>
     <TMPL_IF USERCOUNT_DATA>
     <TMPL_VAR NAME=USERCOUNT_CHART DEFAULT="">
     <script type="text/javascript">
@@ -46,12 +54,15 @@
     </script>
     </TMPL_IF>
     <TMPL_VAR NAME=CHANNEL_LOGO DEFAULT="">
+    </TMPL_IF>
 
     <h1>IRC log for <TMPL_VAR SERVER>/#<TMPL_VAR CHANNEL>, <TMPL_VAR DATE></h1>
 
     <TMPL_VAR NAME=CHANNEL_LINKS DEFAULT="">
     <TMPL_INCLUDE NAME='linkblock.tmpl'>
+    </div>
 
+    <div id="content">
     <p>All times shown according to <abbr title="Coordinated Universal Time">UTC</abbr>.</p>
 	<TMPL_IF ADMIN>
 	<form method="post" action="<TMPL_VAR BASE_URL>spam.pl?date=<TMPL_VAR DATE>;channel=<TMPL_VAR CHANNEL>">
@@ -82,13 +93,20 @@
 	<div style="clear:both"></div>
 	</form>
 	</TMPL_IF>
+    </div>
 
+    <TMPL_IF IOS>
+    <TMPL_ELSE>
     <TMPL_INCLUDE NAME='linkblock.tmpl'>
     <TMPL_VAR NAME=CHANNEL_LINKS DEFAULT="">
+    </TMPL_IF>
 
     <TMPL_INCLUDE NAME="footer.tmpl">
 
+    <TMPL_IF IOS>
+    <TMPL_ElSE>
 	<script type="text/javascript" src="<TMPL_VAR BASE_URL>js/nickfilter.js"></script>
+    </TMPL_IF>
 </body>
 </html>
 <!-- <TMPL_IF DEBUG> <TMPL_VAR DEBUG> </TMPL_IF> -->

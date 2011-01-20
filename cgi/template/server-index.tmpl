@@ -4,23 +4,32 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta name="description" content="IRC logs by SNAILBot" />
-    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Irclog default Stylesheet" />
+    <TMPL_IF IOS>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>iphone.css" title="SNAILBot iPhone Stylesheet" />
+    <TMPL_ELSE>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>desktop.css" title="SNAILBot Desktop Stylesheet" />
+    </TMPL_IF>
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
     <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - <TMPL_VAR SERVER></title>
 
     <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
 </head>
 <body>
+    <div id="header">
     <h1><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - Server Index</h1>
 
     <TMPL_INCLUDE linkblock.tmpl>
+    </div>
 
+    <div id="content">
 	<h2 id="<TMPL_VAR SERVER>"><TMPL_VAR SERVER></h2>
 
 	<ul><TMPL_LOOP CHANNELS>
 		<li><a href="<TMPL_VAR BASE_URL><TMPL_VAR NAME=SERVER ESCAPE=URL>/<TMPL_VAR NAME=CHANNEL ESCAPE=URL>/">#<TMPL_VAR CHANNEL></a> - <a href="<TMPL_VAR BASE_URL><TMPL_VAR NAME=SERVER ESCAPE=URL>/<TMPL_VAR NAME=CHANNEL ESCAPE=URL>/today">Today</a></li>
     </TMPL_LOOP>
 	</ul>
+    </div>
 
     <TMPL_INCLUDE NAME="footer.tmpl">
   </body>

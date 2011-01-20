@@ -75,6 +75,15 @@ sub get_server_index {
     $template->param(   server => $server );
 	$template->param( channels => \@channels );
     {
+        # Determine if browser is an iPhone/iPod Touch
+        my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+        my $iPhone_check = index $user_agent_string,'iPhone';
+        my $iPod_check = index $user_agent_string,'iPod';
+        if ($iPhone_check >= 0 || $iPod_check >= 0) {
+            $template->param(IOS => 1);
+        }
+    }
+    {
         # Find and insert extras
         my $analytics_header = "extras/analytics-header.tmpl";
         if (-e $analytics_header) {

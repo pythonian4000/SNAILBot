@@ -61,7 +61,15 @@ my $start = $q->param("start") || 0;
 
 my $offset = $q->param("offset") || 0;
 die unless $offset =~ m/^\d+$/;
-
+{
+    # Determine if browser is an iPhone/iPod Touch
+    my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+    my $iPhone_check = index $user_agent_string,'iPhone';
+    my $iPod_check = index $user_agent_string,'iPod';
+    if ($iPhone_check >= 0 || $iPod_check >= 0) {
+        $t->param(IOS => 1);
+    }
+}
 # Set this to 1 if you want to include extras in the search page (e.g. analytics code).
 my $insert_extras_into_search_page = 1;
 if ($insert_extras_into_search_page){

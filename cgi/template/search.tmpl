@@ -4,7 +4,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta name="description" content="IRC LOG for channel <TMPL_VAR CHANNEL> on <TMPL_VAR SERVER>" />
-    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>style.css" title="Purple Haze Stylesheet" />
+    <TMPL_IF IOS>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>iphone.css" title="SNAILBot iPhone Stylesheet" />
+    <TMPL_ELSE>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>desktop.css" title="SNAILBot Desktop Stylesheet" />
+    </TMPL_IF>
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
     <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
     <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - Search</title>
 
@@ -34,10 +39,13 @@
     <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
 </head>
 <body>
+    <div id="header">
     <h1>Search the SNAILBot IRC logs</h1>
 
     <p><a href="<TMPL_VAR BASE_URL>">Index</a></p>
+    </div>
 
+    <div id="content">
     <form action="<TMPL_VAR BASE_URL>search.pl" method="get"
     accept-charset="utf-8">
         <label for="server">Server</label>
@@ -107,6 +115,7 @@
 		ESCAPE=URL>;q=<TMPL_VAR Q>;offset=<TMPL_VAR OFFSET>"><TMPL_VAR PAGE></a>
 	</TMPL_LOOP>
 	</p>
+    </div>
 
     <TMPL_INCLUDE footer.tmpl>
   </body>

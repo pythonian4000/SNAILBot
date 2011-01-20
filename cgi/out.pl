@@ -144,6 +144,17 @@ sub irclog_output {
 
     $t->param(ADMIN => 1) if ($q->param('admin'));
 
+    my $ios = 0;
+    {
+        # Determine if browser is an iPhone/iPod Touch
+        my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+        my $iPhone_check = index $user_agent_string,'iPhone';
+        my $iPod_check = index $user_agent_string,'iPod';
+        if ($iPhone_check >= 0 || $iPod_check >= 0) {
+            $ios = 1;
+            $t->param(IOS => 1);
+        }
+    }
     {
         # Insert usercount chart if present
         my $clf = "channels/$server/$channel/usercount.tmpl";
@@ -164,7 +175,11 @@ sub irclog_output {
         # Insert channel-specific links if present
         my $clf = "channels/$server/$channel/links.tmpl";
         if (-e $clf) {
-            $t->param(CHANNEL_LINKS => q{} . read_file($clf));
+            my $links = q{} . read_file($clf);
+            if ($t->param('IOS')) {
+                $links =~ s/\|//g;
+            }
+            $t->param(CHANNEL_LINKS => $links);
         }
     }
     {
@@ -232,6 +247,7 @@ sub irclog_output {
                 server      => $server,
                 },
                 \$c,
+                $ios,
                 );
         $prev_nick = $nick;
     }
