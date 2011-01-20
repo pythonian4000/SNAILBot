@@ -34,20 +34,33 @@ use Cache::FileCache;
 print http_header();
 my $q = new CGI;
 my $server = $q->url_param('server');
+# Determine if browser is an iPhone/iPod Touch
+my $ios;
+my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+my $iPhone_check = index $user_agent_string,'iPhone';
+my $iPod_check = index $user_agent_string,'iPod';
+if ($iPhone_check >= 0 || $iPod_check >= 0) {
+    $ios = 1;
+}
+
 my $cache = new Cache::FileCache( { 
 		namespace 		=> 'irclog',
 		} );
-
+my $cache_name = $server;
+if ($ios) {
+    $cache_name = $cache_name . '|iOS';
+}
 my $data;
-$data = $cache->get($server);
+# Comment out the next line to disable the cache
+$data = $cache->get($cache_name);
 if ( ! defined $data){
-	$data = get_server_index($server);
-	$cache->set($server, $data, '5 hours');
+	$data = get_server_index($server, $ios);
+	$cache->set($cache_name, $data, '5 hours');
 }
 print $data;
 
 sub get_server_index {
-    my $server = shift;
+    my ($server, $ios) = @_;
 	my $dbh = get_dbh();
 
 	my $conf      = Config::File::read_config_file('cgi.conf');
@@ -74,14 +87,8 @@ sub get_server_index {
 	$template->param( BASE_URL => $base_url);
     $template->param(   server => $server );
 	$template->param( channels => \@channels );
-    {
-        # Determine if browser is an iPhone/iPod Touch
-        my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
-        my $iPhone_check = index $user_agent_string,'iPhone';
-        my $iPod_check = index $user_agent_string,'iPod';
-        if ($iPhone_check >= 0 || $iPod_check >= 0) {
-            $template->param(IOS => 1);
-        }
+    if ($ios) {
+        $template->param(IOS => 1);
     }
     {
         # Find and insert extras

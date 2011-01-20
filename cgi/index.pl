@@ -30,19 +30,34 @@ use IrcLog::WWW qw(http_header);
 use Cache::FileCache;
 
 print http_header();
+
+# Determine if browser is an iPhone/iPod Touch
+my $ios;
+my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+my $iPhone_check = index $user_agent_string,'iPhone';
+my $iPod_check = index $user_agent_string,'iPod';
+if ($iPhone_check >= 0 || $iPod_check >= 0) {
+    $ios = 1;
+}
+
 my $cache = new Cache::FileCache( { 
 		namespace 		=> 'irclog',
 		} );
-
+my $cache_name = 'index';
+if ($ios) {
+    $cache_name = $cache_name . '|iOS';
+}
 my $data;
-$data = $cache->get('index');
+# Comment out the next line to disable the cache
+$data = $cache->get($cache_name);
 if ( ! defined $data){
-	$data = get_index();
-	$cache->set('index', $data, '5 hours');
+	$data = get_index($ios);
+	$cache->set($cache_name, $data, '5 hours');
 }
 print $data;
 
 sub get_index {
+    my $ios = shift;
 
 	my $dbh = get_dbh();
 
@@ -69,14 +84,8 @@ sub get_index {
     $template->param(SITE_NAME => $site_name);
 	$template->param( BASE_URL => $base_url);
 	$template->param(  servers => \@servers );
-    {
-        # Determine if browser is an iPhone/iPod Touch
-        my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
-        my $iPhone_check = index $user_agent_string,'iPhone';
-        my $iPod_check = index $user_agent_string,'iPod';
-        if ($iPhone_check >= 0 || $iPod_check >= 0) {
-            $template->param(IOS => 1);
-        }
+    if ($ios) {
+        $template->param(IOS => 1);
     }
     {
         # Find and insert extras

@@ -36,14 +36,27 @@ sub go {
     my $q = new CGI;
     my $server = $q->url_param('server');
     my $channel = $q->url_param('channel');
+    # Determine if browser is an iPhone/iPod Touch
+    my $ios;
+    my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+    my $iPhone_check = index $user_agent_string,'iPhone';
+    my $iPod_check = index $user_agent_string,'iPod';
+    if ($iPhone_check >= 0 || $iPod_check >= 0) {
+        $ios = 1;
+    }
     print "Content-Type: text/html; charset=utf-8\n\n";
 
     my $cache_name = $channel . '|' . gmt_today();
+    if ($ios) {
+        $cache_name = $cache_name . '|iOS';
+    }
     my $cache      = new Cache::FileCache({ namespace => 'irclog' });
-    my $data       = $cache->get($cache_name);
+    my $data;
+    # Comment out the next line to disable the cache
+    $data          = $cache->get($cache_name);
 
     if (! defined $data) {
-        $data = get_channel_index($server, $channel);
+        $data = get_channel_index($server, $channel, $ios);
         $cache->set($data, '2 hours');
     }
 
@@ -61,7 +74,7 @@ sub test_calendar {
 }
 
 sub get_channel_index {
-    my ($server, $channel) = @_;
+    my ($server, $channel, $ios) = @_;
     my $conf      = Config::File::read_config_file('cgi.conf');
     my $site_name = $conf->{SITE_NAME} || q{SNAILBot};
     my $base_url  = $conf->{BASE_URL} || q{/};
@@ -82,14 +95,8 @@ sub get_channel_index {
     $t->param(SITE_NAME => $site_name);
     $t->param(BASE_URL  => $base_url);
     $t->param(CALENDAR  => calendar_for_channel($server, $channel, $dates, $base_url));
-    {
-        # Determine if browser is an iPhone/iPod Touch
-        my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
-        my $iPhone_check = index $user_agent_string,'iPhone';
-        my $iPod_check = index $user_agent_string,'iPod';
-        if ($iPhone_check >= 0 || $iPod_check >= 0) {
-            $t->param(IOS => 1);
-        }
+    if ($ios) {
+        $t->param(IOS => 1);
     }
     {
         # Insert usercount chart if present

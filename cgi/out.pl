@@ -109,9 +109,20 @@ my $count;
     $sth->finish();
 }
 
+# Determine if browser is an iPhone/iPod Touch
+my $ios;
+my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
+my $iPhone_check = index $user_agent_string,'iPhone';
+my $iPod_check = index $user_agent_string,'iPod';
+if ($iPhone_check >= 0 || $iPod_check >= 0) {
+    $ios = 1;
+}
 
 {
     my $cache_key = $server . '|' . $channel . '|' . $date . '|' . $count;
+    if ($ios) {
+        $cache_key = $cache_key . '|iOS';
+    }
     # the average #perl6 day produces 100k to 400k of HTML, so with
     # 50MB we have about 150 pages in the cache. Since most hits are
     # the "today" page and those of the last 7 days, we still get a very
@@ -121,18 +132,20 @@ my $count;
             namespace       => 'irclog',
             max_size        => 150 * 1048576,
             } );
-    my $data = $cache->get($cache_key);
+    my $data;
+    # Comment out the next line to disable the cache
+    $data = $cache->get($cache_key);
     if (defined $data){
         print $data;
     } else {
-        $data = irclog_output($date, $server, $channel);
+        $data = irclog_output($date, $server, $channel, $ios);
         $cache->set($cache_key, $data);
         print $data;
     }
 }
 
 sub irclog_output {
-    my ($date, $server, $channel) = @_;
+    my ($date, $server, $channel, $ios) = @_;
 
     my $full_channel = q{#} . $channel;
     my $t = HTML::Template->new(
@@ -144,16 +157,8 @@ sub irclog_output {
 
     $t->param(ADMIN => 1) if ($q->param('admin'));
 
-    my $ios = 0;
-    {
-        # Determine if browser is an iPhone/iPod Touch
-        my $user_agent_string = $ENV{HTTP_USER_AGENT} || '';
-        my $iPhone_check = index $user_agent_string,'iPhone';
-        my $iPod_check = index $user_agent_string,'iPod';
-        if ($iPhone_check >= 0 || $iPod_check >= 0) {
-            $ios = 1;
+    if ($ios) {
             $t->param(IOS => 1);
-        }
     }
     {
         # Insert usercount chart if present
