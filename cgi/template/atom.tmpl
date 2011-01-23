@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta name="description" content="IRC LOG for channel <TMPL_VAR CHANNEL> on <TMPL_VAR SERVER>" />
+    <TMPL_IF IOS>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>iphone.css" title="SNAILBot iPhone Stylesheet" />
+    <TMPL_ELSE>
+    <link rel="stylesheet" type="text/css" href="<TMPL_VAR BASE_URL>desktop.css" title="SNAILBot Desktop Stylesheet" />
+    </TMPL_IF>
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
+    <link rel="shortcut icon" href="<TMPL_VAR BASE_URL>moose1.ico" type="image/x-icon" />
+    <title><TMPL_IF SITE_NAME><TMPL_VAR SITE_NAME> </TMPL_IF>IRC logs - Search</title>
+
+    <script type="text/javascript"><![CDATA[
+    var allchannels = new Array();
+    <TMPL_LOOP ALL_CHANNELS>
+    allchannels[<TMPL_VAR SERVER_INT>] = [<TMPL_LOOP CHANNELS>"<TMPL_VAR CHANNEL>",</TMPL_LOOP>];
+    </TMPL_LOOP>
+    function changeChannels(selectedserver) {
+        var channellist = document.getElementById('channel');
+        channellist.options.length = 0;
+        for (var i = 0; i < allchannels[selectedserver].length; i++) {
+            if (i == 0) {
+                channellist.options[channellist.options.length] = new Option(allchannels[selectedserver][i],allchannels[selectedserver][i], true);
+            } else {
+                channellist.options[channellist.options.length] = new Option(allchannels[selectedserver][i],allchannels[selectedserver][i], false);
+            }
+        }
+        if (channellist.options.length >= 5) {
+            channellist.size = 5;
+        } else {
+            channellist.size = channellist.options.length;
+        }
+    }
+    ]]></script>
+
+    <TMPL_VAR NAME=ANALYTICS_HEADER DEFAULT="">
+</head>
+<body>
+    <div id="header">
+    <h1>Generate a SNAILBot Atom feed</h1>
+
+    <p><a href="<TMPL_VAR BASE_URL>">Index</a></p>
+    </div>
+
+    <div id="content">
+    <form action="<TMPL_VAR BASE_URL>atom.pl" method="get"
+    accept-charset="utf-8">
+        <label for="server">Server</label>
+        <select id="server" name="server" size="<TMPL_VAR SVR_COUNT>" onchange="changeChannels(this.selectedIndex)">
+                <TMPL_LOOP SERVERS>
+                <option <TMPL_IF SELECTED>selected="selected"</TMPL_IF>><TMPL_VAR
+                SERVER></option>
+                </TMPL_LOOP>
+        </select>
+        <br />
+
+        <label for="channel">Channel</label>
+        <select id="channel" name="channel" size="<TMPL_VAR CH_COUNT>">
+                <TMPL_LOOP CHANNELS>
+                <option <TMPL_IF SELECTED>selected="selected"</TMPL_IF>><TMPL_VAR
+                CHANNEL></option>
+                </TMPL_LOOP>
+        </select>
+		<br />
+
+        <label for="nick">Nick to monitor</label>
+		<input type="text" size="10" maxlength="30" name="nick"
+		value="" id="nick"></input>
+		<br />
+
+        <label for="q">Filter text</label>
+		<input type="text" size="10" maxlength="30" name="q"
+		value="" id="text"></input>
+		<br />
+
+        <label for="num">Feed length</label>
+		<input type="text" size="10" maxlength="30" name="num"
+		value="" id="feed_length"></input>
+		<br />
+
+		<input type="submit" value="Generate Atom"></input><br />
+
+    </form>
+    </div>
+
+    <TMPL_INCLUDE footer.tmpl>
+  </body>
+</html>
