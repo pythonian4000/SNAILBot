@@ -7,6 +7,8 @@ TODO LIST
   * iPhone/iPod Touch - underway
   * Android
   * others?
+* Fix lib/IrcLog.pm so database.conf is found by both snailbot.pl and the website.
+* Modify .htaccess to allow running the bot from a subdirectory.
 
 Already done:
 * Add modular support for displaying graphs of channel usercounts
