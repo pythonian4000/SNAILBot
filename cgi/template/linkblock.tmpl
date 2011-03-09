@@ -12,6 +12,8 @@
     <TMPL_IF NAME=NEXT_URL>
 		<a href="<TMPL_VAR NAME=NEXT_URL>">Next day &rarr;</a> <TMPL_IF IOS><TMPL_ELSE>|</TMPL_IF>
 	</TMPL_IF>
+    <a href="<TMPL_VAR BASE_URL>atom.pl?server=<TMPL_VAR NAME=SERVER ESCAPE=URL><TMPL_IF
+    NAME=CHANNEL>;channel=<TMPL_VAR NAME=CHANNEL ESCAPE=URL></TMPL_IF>">Atom Feed</a> <TMPL_IF IOS><TMPL_ELSE>|</TMPL_IF>
     <a href="<TMPL_VAR BASE_URL>search.pl?server=<TMPL_VAR NAME=SERVER ESCAPE=URL><TMPL_IF
     NAME=CHANNEL>;channel=<TMPL_VAR NAME=CHANNEL ESCAPE=URL></TMPL_IF>">Search</a> <TMPL_IF IOS><TMPL_ELSE>|</TMPL_IF>
     <a href="http://www.google.com/search?q=site%3Airclogs.jackgrigg.com+inurl%3A<TMPL_VAR
