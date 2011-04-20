@@ -102,8 +102,8 @@ if ($channel !~ m/\A#?[.\w-]+\z/smx){
 
 my $count;
 {
-    my $sth = $dbh->prepare_cached('SELECT COUNT(*) FROM irclog WHERE day = ?');
-    $sth->execute($date);
+    my $sth = $dbh->prepare_cached('SELECT COUNT(*) FROM irclog WHERE server = ? AND channel = ? AND day = ?');
+    $sth->execute($server, $channel, $date);
     $sth->bind_columns(\$count);
     $sth->fetch();
     $sth->finish();
